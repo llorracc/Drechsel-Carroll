@@ -1,7 +1,7 @@
 # Bellman Optimization Problems in Doerr, Drechsel & Lee (2026)
 # "Income Inequality and Job Creation"
 #
-# Produced by econ-ark-matsya (claude-opus-4-6) via sequential queries,
+# Produced by econ-ark-matsya (Claude Opus) via sequential queries,
 # assembled and verified against the paper's actual equations (3-19).
 # Directional corrections applied to banking section where matsya's
 # RAG context (Bellman-DDSL corpus) led to reversed deposit-flow direction.

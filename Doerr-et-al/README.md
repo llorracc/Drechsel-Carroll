@@ -11,7 +11,7 @@ This document records a workflow in which `econ-ark-matsya` — a remote RAG sys
 - Cross-references to Carroll (2000a, 2000b) establishing the non-homothetic portfolio allocation that drives the paper's mechanism
 - The synthesis that the three papers form a causal chain: *why* the rich save → *what* they invest in → *what happens* to everyone else
 
-With this context, matsya's LLM layer (Claude claude-opus-4-6) could reason about the paper's structure despite the remote RAG index being irrelevant to it.
+With this context, matsya's LLM layer (Claude Opus) could reason about the paper's structure despite the remote RAG index being irrelevant to it.
 
 ---
 
@@ -68,7 +68,7 @@ Matsya identified:
 
 **Correction applied**: Matsya's remote RAG context led it to reverse the direction of deposit flows in one subsection. The actual mechanism is that rising top incomes cause deposits to *fall* (because $\eta > \sigma$ makes deposits a necessity), not rise. This was corrected in the assembled documentation.
 
-The outputs from all four queries were assembled into the file `Doerr_et_al`, verified against the paper's actual equations, and corrected where matsya's lack of direct paper access led to errors.
+The outputs from all four queries were assembled into the file `Doerr_et_al.md`, verified against the paper's actual equations, and corrected where matsya's lack of direct paper access led to errors.
 
 ---
 
@@ -80,7 +80,7 @@ The four problems have a natural complexity ordering:
 |---------|--------|----------|--------|------------|
 | **Public firm** | 1 exogenous ($z$) | 2 static ($K$, $N$) | Linear fixed-point | Simplest |
 | **Private firm** | 1 exogenous ($z$) + i.i.d. draws | 1 static ($\tilde{n}$) + cutoff rules | 1D VFI | Moderate |
-| **Household** | 3 endogenous ($d$, $k$, $\xi$) | 5 continuous | 3D VFI | Hard |
+| **Household** | 2 endogenous ($d$, $k$) + 1 exogenous ($\xi$) | 5 continuous | 3D VFI | Hard |
 | **Banking/GE** | All prices | All quantities | Nested Aiyagari loops | Hardest |
 
 The public firm problem is simplest by design: it serves as the frictionless benchmark against which private-firm distortions are measured.

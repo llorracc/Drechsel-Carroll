@@ -34,7 +34,7 @@ Published in: *Does Atlas Shrug? The Economic Consequences of Taxing the Rich*, 
 
 ### The Deposit Channel: From Portfolios to Job Creation
 
-- **Doerr, Drechsel, and Lee (2026)** — "Income Inequality and Job Creation." Takes the non-homotheticity one step further: rich households not only save more, they save *differently* — more in stocks and bonds, less in bank deposits. Rising top income shares thus drain deposits from the banking system, raising loan rates for bank-dependent (private) firms and reducing their employment. Their model uses a modified Stone-Geary / non-homothetic deposit utility (with curvature η > σ) that is a direct formalization of Carroll's insight that the composition, not just the level, of wealthy households' savings matters for the real economy.
+- **Doerr, Drechsel, and Lee (2026)** — "Income Inequality and Job Creation." Takes the non-homotheticity one step further: rich households not only save more, they save *differently* — more in stocks and bonds, less in bank deposits. Rising top income shares thus drain deposits from the banking system, raising loan rates for bank-dependent (private) firms and reducing their employment. Their model uses a non-homothetic deposit utility — a separate CRRA term over deposits with curvature η > σ — that is a direct formalization of Carroll's insight that the composition, not just the level, of wealthy households' savings matters for the real economy.
 
 ### HANK Models and Heterogeneous Portfolios
 

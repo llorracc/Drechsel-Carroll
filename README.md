@@ -1,6 +1,6 @@
 # Portfolios of the Rich: From Micro Preferences to Macro Consequences
 
-This repository was created on Wednesday, February 18, 2026, after an interesting presentation of "Income Inequality and Job Creation" by Thomas Drechsel at Johns Hopkins University. The talk prompted an exploration of the intellectual arc connecting Drechsel's work with coauthors Sebastian Doerr and Daeha Lee back to two earlier papers by Christopher Carroll on the saving behavior and portfolio composition of the wealthy.
+This repository was created on Wednesday, February 18, 2026, after an interesting presentation of "Income Inequality and Job Creation" by Thomas Drechsel at Johns Hopkins University. The talk prompted an exploration of the intellectual connections between the Doerr, Drechsel & Lee paper and two earlier papers by Christopher Carroll on the saving behavior and portfolio composition of the wealthy.
 
 ## The Three-Paper Arc
 
@@ -10,7 +10,7 @@ The papers collected here tell a single story across two decades of research:
 
 2. **What do the rich invest in?** Carroll (2000) documents that the wealthy hold ~80% of their portfolios in risky assets, especially private business equity, and shows that the same preference structure implies declining relative risk aversion.
 
-3. **What happens to everyone else?** Doerr, Drechsel & Lee (2026) traces the macroeconomic consequences: as top income shares rise, savings shift from bank deposits toward stocks and equity. This drains deposit funding from banks, raises lending rates for bank-dependent small firms, and reduces their job creation — accounting for ~13% of the decline in small-firm employment share since 1980.
+3. **What happens to everyone else?** Doerr, Drechsel & Lee (2026) identifies the macroeconomic consequences through both novel empirical work and a general equilibrium model. Empirically, using US state-level variation and an instrumental variable strategy, they establish that rising top income shares shift household savings from bank deposits toward stocks and equity, draining deposit funding from banks and raising lending rates for bank-dependent small firms. Their GE model — with endogenous public/private firm dynamics, a banking sector, and non-homothetic household preferences — shows this channel accounts for ~13% of the decline in small-firm employment share since 1980.
 
 ## What's in this Repository
 
@@ -26,13 +26,13 @@ Carroll/
 │   └── Carroll-Portfolios-of-the-Rich.tex
 └── Why-Do-The-Rich-Save-So-Much/
     ├── README.md                      Literature survey (631+ citations)
-    ├── Carroll-Why-Do.he-Rich-Save-So-Much.pdf
-    └── Carroll-Why-Do.he-Rich-Save-So-Much.tex
+    ├── Carroll-Why-Do-The-Rich-Save-So-Much.pdf
+    └── Carroll-Why-Do-The-Rich-Save-So-Much.tex
 
 Doerr-et-al/
 ├── README.md                          Workflow narrative: extraction → YAML → solvers
 ├── Doerr-et-al-Income-inequality-and-job-creation.pdf
-├── Doerr_et_al                        Assembled Bellman equation documentation
+├── Doerr_et_al.md                     Assembled Bellman equation documentation
 └── generated-model-files/
     ├── matsya_household.txt           Raw matsya output: household problem
     ├── matsya_private_firm.txt        Raw matsya output: private firm problem
@@ -57,5 +57,5 @@ Doerr-et-al/
 
 ## Tools
 
-- [econ-ark-matsya](https://github.com/econ-ark/econ-ark-tools): Remote RAG system querying the Econ-ARK/Bellman-DDSL corpus, used with Claude claude-opus-4-6 for equation extraction and code generation
+- [econ-ark-matsya](https://github.com/econ-ark/econ-ark-tools): Remote RAG system querying the Econ-ARK/Bellman-DDSL corpus, used with Claude Opus for equation extraction and code generation
 - Python solvers use `numpy`, `scipy`, and `matplotlib`

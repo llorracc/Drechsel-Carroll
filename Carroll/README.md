@@ -4,9 +4,9 @@
 
 This repository contains three economics papers that form a coherent intellectual arc, with Christopher D. Carroll as the connective thread:
 
-1. **"Why Do the Rich Save So Much?"** (Carroll, 2000) — in `Carroll-Why-Do-The-Rich-Save-So-Much/`
-2. **"Portfolios of the Rich"** (Carroll, 2000) — in `Carroll-Portfolios-of-the-Rich/`
-3. **"Income Inequality and Job Creation"** (Doerr, Drechsel & Lee, 2026) — in `Doerr-et-al/`
+1. **"Why Do the Rich Save So Much?"** (Carroll, 2000) — in `Why-Do-The-Rich-Save-So-Much/`
+2. **"Portfolios of the Rich"** (Carroll, 2000) — in `Portfolios-of-the-Rich/`
+3. **"Income Inequality and Job Creation"** (Doerr, Drechsel & Lee, 2026) — in `../Doerr-et-al/`
 
 ## The Causal Chain: Paper 1 → Paper 2 → Paper 3
 
@@ -20,13 +20,13 @@ Carroll (2000b) takes the same theoretical apparatus and discovers an **unantici
 
 ### Paper 3: What Happens to Everyone Else
 
-Doerr, Drechsel & Lee (2026) trace the **macroeconomic consequences** of these portfolio choices. Taking as empirical input the same SCF evidence on portfolio composition that Papers 1–2 established — specifically that deposit shares decline sharply with income — the authors identify a novel transmission channel: as top income shares rise, aggregate household savings shift away from bank deposits toward stocks, bonds, and direct business holdings. This starves banks of cheap deposit funding, raising financing costs for **bank-dependent small firms**, which reduces their job creation. Using US state-level instrumental variable estimation over 1980–2015 and a general equilibrium model, they find rising top incomes explain roughly 13% of the decline in small-firm employment share.
+Doerr, Drechsel & Lee (2026) trace the **macroeconomic consequences** of these portfolio choices. Building on SCF evidence that deposit shares decline sharply with income — a fact consistent with Papers 1–2 — the authors bring new empirical evidence (Bureau of Labor Statistics Business Dynamics Statistics, state-level panel data) and a novel identification strategy to establish a causal channel: as top income shares rise, aggregate household savings shift away from bank deposits toward stocks, bonds, and direct business holdings. This starves banks of cheap deposit funding, raising financing costs for **bank-dependent small firms**, which reduces their job creation. Using US state-level instrumental variable estimation and a general equilibrium model with endogenous firm dynamics, they find rising top incomes explain roughly 13% of the decline in small-firm employment share.
 
 ## Shared Theoretical Architecture
 
 All three papers share a common theoretical scaffolding:
 
-1. **Departure from CRRA homothetic preferences.** CRRA with constant relative risk aversion serves as the baseline all three depart from. Paper 1 introduces non-homotheticity in saving; Paper 2 shows it implies non-homotheticity in risk-taking; Paper 3 takes the resulting non-homothetic portfolio allocation as an empirical input to a macro model.
+1. **Departure from CRRA homothetic preferences.** CRRA with constant relative risk aversion serves as the baseline all three depart from. Paper 1 introduces non-homotheticity in saving; Paper 2 shows it implies non-homotheticity in risk-taking; Paper 3 provides structural micro-foundations for non-homothetic deposit demand and embeds it in a general equilibrium model to trace its macroeconomic consequences.
 
 2. **Capital market imperfections.** Paper 2 emphasizes entrepreneurial self-financing (the rich hold private business equity because external financing is costly or unavailable), while Paper 3 focuses on the mirror image — small firms that *cannot* self-finance depend on bank lending, and are therefore vulnerable when deposit funding dries up. These are two sides of the same coin.
 
@@ -34,18 +34,18 @@ All three papers share a common theoretical scaffolding:
 
 ## Authorship and Citation Structure
 
-Carroll authored Papers 1 and 2, with Paper 2 explicitly building on Paper 1's Capitalist Spirit model. Doerr, Drechsel, and Lee are different authors working downstream, leveraging the same SCF evidence and theoretical insights that Carroll established. This represents a natural progression from micro-foundations (individual motivation → individual portfolio choice) to macro consequences (aggregate portfolio reallocation → financial intermediation → real economy).
+Carroll authored Papers 1 and 2, with Paper 2 explicitly building on Paper 1's Capitalist Spirit model. Doerr, Drechsel, and Lee build on the same SCF evidence and theoretical insights that Carroll established, while contributing substantial original work: state-level instrumental variable identification of the deposit-lending channel, a novel general equilibrium model with endogenous public/private firm dynamics, and a quantitative decomposition of small-firm employment decline. The result is a natural progression from micro-foundations (individual motivation → individual portfolio choice) to macro consequences (aggregate portfolio reallocation → financial intermediation → real economy).
 
 ## The Unified Narrative
 
-Read together, the three papers tell a single story: **The rich save more (Paper 1), invest what they save in riskier and less bank-intermediated assets (Paper 2), and when income concentration rises, this portfolio tilt drains deposits from the banking system, raising borrowing costs for small firms and destroying jobs (Paper 3).** The preference structure that makes the rich save so much is inseparable from the preference structure that makes them invest aggressively, and the aggregate implications of those investment choices flow through financial intermediation to the real economy — connecting the psychology of wealth accumulation at the very top to employment outcomes at the very bottom of the firm size distribution.
+Read together, the three papers tell a single story: **The rich save more (Paper 1), invest what they save in riskier and less bank-intermediated assets (Paper 2), and when income concentration rises, this portfolio tilt drains deposits from the banking system, raising borrowing costs for small firms and destroying jobs (Paper 3).** The preference structure that makes the rich save so much is inseparable from the preference structure that makes them invest aggressively, and the aggregate implications of those investment choices flow through financial intermediation to the real economy — connecting the preference structure of the wealthy to employment outcomes at the very bottom of the firm size distribution.
 
-## Doerr et al.'s Formalization of Carroll's Insight
+## The Preference Mechanism in Doerr et al.
 
-Doerr et al. formalize the non-homothetic portfolio allocation through a specific preference structure: household utility includes a separate CRRA term over deposits with curvature parameter $\eta > \sigma$ (where $\sigma$ is the standard consumption CRRA). Because $\eta > \sigma$, the marginal utility of deposits falls *faster* than the marginal utility of consumption-savings, making deposits behave as a "necessity good." Rich households saturate their deposit demand at relatively low levels and shift marginal savings into capital (stocks, equity, business ownership). This is a direct formalization of Carroll's original observation that the composition, not just the level, of wealthy households' savings matters for the real economy.
+At the micro level, Doerr et al. provide explicit micro-foundations for the non-homothetic portfolio allocation through a specific preference structure: household utility includes a separate CRRA term over deposits with curvature parameter $\eta > \sigma$ (where $\sigma$ is the standard consumption CRRA). Because $\eta > \sigma$, the marginal utility of deposits falls *faster* than the marginal utility of consumption-savings, making deposits behave as a "necessity good." Rich households saturate their deposit demand at relatively low levels and shift marginal savings into capital (stocks, equity, business ownership). This preference specification connects to Carroll's original observation about the composition of wealthy households' savings, but is embedded within a full general equilibrium model with endogenous firm dynamics, banking frictions, and public/private firm transitions that together generate the paper's quantitative results.
 
 ## Further Reading
 
-See `Carroll-Why-Do-The-Rich-Save-So-Much/README.md` for a literature survey of works citing Carroll (2000), tracing the intellectual lineage from the original paper through Straub (2019), Mian-Straub-Sufi (2021), and the HANK literature.
+See `Why-Do-The-Rich-Save-So-Much/README.md` for a literature survey of works citing Carroll (2000), tracing the intellectual lineage from the original paper through Straub (2019), Mian-Straub-Sufi (2021), and the HANK literature.
 
-See `Doerr-et-al/` for detailed Bellman equation documentation, and `Doerr-et-al/generated-model-files/` for dolangplus YAML model descriptions and Python solvers for the Doerr et al. general equilibrium model.
+See `../Doerr-et-al/` for detailed Bellman equation documentation, and `../Doerr-et-al/generated-model-files/` for dolangplus YAML model descriptions and Python solvers for the Doerr et al. general equilibrium model.
