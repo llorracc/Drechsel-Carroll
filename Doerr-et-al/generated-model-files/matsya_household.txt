@@ -1,0 +1,211 @@
+# Household Bellman Problem from Doerr, Drechsel, Lee (2026), Section 5
+
+## (1) Full State Space
+
+Each household $i$ of permanent type $\chi \in \{L, H\}$ enters a period with the following individual and aggregate states:
+
+**Individual states:**
+- $d_{it}$: deposits carried into period (chosen last period)
+- $k_{it}$: risky capital carried into period (chosen last period)
+- $\xi_{it}$: idiosyncratic productivity shock (persistent)
+- $\chi \in \{L, H\}$: permanent type (determines scale $s_\chi$)
+
+**Aggregate states:**
+- $w_t$: wage rate
+- $\tilde{w}_t$: wage rate for the second labor type
+- $R^k_t$: gross return on capital
+- $R^d_t$: gross return on deposits
+- $\Pi_{it}$: profits (from firm ownership, type-dependent)
+- $T_{it}$: taxes/transfers
+
+The effective idiosyncratic earnings capacity is $s_{i,\chi,t} = s_\chi \cdot \xi_{it}$, combining the permanent type scale with the transitory shock.
+
+## (2) Control Variables
+
+$$\{c_{it},\; n_{it},\; \tilde{n}_{it},\; d_{it+1},\; k_{it+1}\}$$
+
+- $c_{it}$: consumption
+- $n_{it}$: labor supply of type 1
+- $\tilde{n}_{it}$: labor supply of type 2
+- $d_{it+1}$: deposits chosen for next period
+- $k_{it+1}$: risky capital chosen for next period
+
+## (3) Bellman Equation
+
+$$V(d_{it}, k_{it}, \xi_{it}; \chi) = \max_{c_{it}, n_{it}, \tilde{n}_{it}, d_{it+1}, k_{it+1}} \left\{ u(c_{it}, n_{it}, \tilde{n}_{it}) + v(d_{it+1}) + \beta \, \mathbb{E}_t \left[ V(d_{it+1}, k_{it+1}, \xi_{it+1}; \chi) \right] \right\}$$
+
+where the period utility has two additively separable components:
+
+**Equation (3) — Period utility:**
+
+$$u(c, n, \tilde{n}) + v(d) = \frac{\bar{u}(c, n, \tilde{n}, s)^{1-\sigma}}{1-\sigma} + \psi_d \frac{d^{1-\eta}}{1-\eta}$$
+
+with the composite:
+
+$$\bar{u}(c, n, \tilde{n}, s) = c - \psi_n \, s \, \frac{n^{1+1/\nu}}{1+1/\nu} - \tilde{\psi}_n \, s \, \frac{\tilde{n}^{1+1/\nu}}{1+1/\nu}$$
+
+**Key parameter restriction:** $\eta > \sigma$.
+
+Note the GHH-style composite $\bar{u}$: consumption is quasi-linear with labor disutility, scaled by $s = s_{i,\chi,t}$, which eliminates wealth effects on labor supply. The deposit utility $v(d_{it+1})$ depends on *next-period* deposits—i.e., the deposit stock the household *chooses* to hold—providing a direct "liquidity services" or "safety" motive.
+
+**Equation (4) — Lifetime objective:**
+
+$$\mathbb{E}_0 \sum_{t=0}^{\infty} \beta^t \left[ u(c_{it}, n_{it}, \tilde{n}_{it}) + v(d_{it+1}) \right]$$
+
+## (4) Budget Constraint
+
+**Equation (5):**
+
+$$c_{it} + d_{it+1} + k_{it+1} = s_{i,\chi,t} \left( w_t \, n_{it} + \tilde{w}_t \, \tilde{n}_{it} \right) + R^k_t \, k_{it} + R^d_t \, d_{it} + \Pi_{it} - T_{it}$$
+
+The left side is total uses of funds (consumption plus the two savings vehicles). The right side is total resources: labor earnings (scaled by idiosyncratic capacity $s_{i,\chi,t} = s_\chi \xi_{it}$), gross return on capital, gross return on deposits, profits, and net of taxes.
+
+## (5) All Binding Constraints
+
+**Equation (6):**
+
+$$d_{it+1} \geq 0, \qquad k_{it+1} \geq 0$$
+
+These are non-negativity constraints—no short-selling of either asset. Critically, there is **no borrowing**: the household cannot hold negative deposits (no unsecured debt) and cannot short capital. These constraints will bind differentially across the wealth distribution, which is central to the mechanism.
+
+## (6) Exogenous Transitions
+
+**Idiosyncratic productivity:**
+
+$$\log \xi_{it} = \rho \log \xi_{it-1} + \varepsilon_{it}, \qquad \varepsilon_{it} \sim \mathcal{N}(0, \sigma_\varepsilon^2)$$
+
+This is a standard AR(1) in logs. Combined with the permanent type $\chi$, effective earnings capacity is:
+
+$$s_{i,\chi,t} = s_\chi \cdot \xi_{it}$$
+
+where $s_H > s_L$, so high types have permanently higher earnings capacity, scaled further by the persistent idiosyncratic shock. Aggregate prices $(w_t, \tilde{w}_t, R^k_t, R^d_t)$ are determined in general equilibrium but are taken as given by households.
+
+## (7) All First-Order Conditions
+
+Let $\lambda_{it}$ be the multiplier on the budget constraint, $\mu^d_{it}$ the multiplier on $d_{it+1} \geq 0$, and $\mu^k_{it}$ the multiplier on $k_{it+1} \geq 0$.
+
+### (7a) Consumption FOC
+
+$$\frac{\partial}{\partial c_{it}}: \qquad \bar{u}_{it}^{-\sigma} = \lambda_{it}$$
+
+Since $\partial \bar{u}/\partial c = 1$ (GHH structure), the marginal utility of consumption equals the shadow value of wealth. This is simply:
+
+$$\bar{u}(c_{it}, n_{it}, \tilde{n}_{it}, s_{it})^{-\sigma} = \lambda_{it}$$
+
+### (7b) Deposit Euler Equation
+
+$$\frac{\partial}{\partial d_{it+1}}: \qquad \psi_d \, d_{it+1}^{-\eta} + \beta \, \mathbb{E}_t \left[ \lambda_{it+1} R^d_{t+1} \right] = \lambda_{it} + \mu^d_{it}$$
+
+Rearranging, when the constraint does not bind ($\mu^d_{it} = 0$):
+
+$$\psi_d \, d_{it+1}^{-\eta} + \beta \, \mathbb{E}_t \left[ \bar{u}_{it+1}^{-\sigma} R^d_{t+1} \right] = \bar{u}_{it}^{-\sigma}$$
+
+This is the **critical equation**. The left side has **two** marginal benefits of deposits: (i) the direct marginal utility of deposit holdings $\psi_d d_{it+1}^{-\eta}$, and (ii) the standard intertemporal return $\beta \mathbb{E}_t[\lambda_{it+1} R^d_{t+1}]$. The household equates these combined benefits to the marginal cost of forgone consumption today.
+
+### (7c) Capital Euler Equation
+
+$$\frac{\partial}{\partial k_{it+1}}: \qquad \beta \, \mathbb{E}_t \left[ \lambda_{it+1} R^k_{t+1} \right] = \lambda_{it} + \mu^k_{it}$$
+
+When the constraint does not bind ($\mu^k_{it} = 0$):
+
+$$\beta \, \mathbb{E}_t \left[ \bar{u}_{it+1}^{-\sigma} R^k_{t+1} \right] = \bar{u}_{it}^{-\sigma}$$
+
+This is a **standard** Euler equation—capital provides *no* direct utility, only intertemporal returns.
+
+### (7d) Portfolio Allocation Condition
+
+Combining the deposit and capital Euler equations (when both constraints are slack), we can eliminate $\lambda_{it}$:
+
+$$\psi_d \, d_{it+1}^{-\eta} + \beta \, \mathbb{E}_t \left[ \bar{u}_{it+1}^{-\sigma} R^d_{t+1} \right] = \beta \, \mathbb{E}_t \left[ \bar{u}_{it+1}^{-\sigma} R^k_{t+1} \right]$$
+
+$$\Longrightarrow \qquad \psi_d \, d_{it+1}^{-\eta} = \beta \, \mathbb{E}_t \left[ \bar{u}_{it+1}^{-\sigma} \left( R^k_{t+1} - R^d_{t+1} \right) \right]$$
+
+The direct marginal utility of deposits equals the expected marginal-utility-weighted **excess return** on capital over deposits. This is the portfolio arbitrage condition: the household holds deposits *despite* their lower expected return because deposits provide direct utility. The household is indifferent at the margin between the liquidity/safety benefit of an extra dollar of deposits and the expected excess financial return from shifting that dollar to capital.
+
+### (7e) Labor Supply FOC — Type 1 Labor ($n_{it}$)
+
+$$\frac{\partial}{\partial n_{it}}: \qquad \bar{u}_{it}^{-\sigma} \cdot \left(-\psi_n \, s_{it} \, n_{it}^{1/\nu}\right) + \lambda_{it} \, s_{it} \, w_t = 0$$
+
+Substituting $\lambda_{it} = \bar{u}_{it}^{-\sigma}$:
+
+$$\psi_n \, n_{it}^{1/\nu} = w_t$$
+
+$$\boxed{n_{it} = \left(\frac{w_t}{\psi_n}\right)^\nu}$$
+
+### (7f) Labor Supply FOC — Type 2 Labor ($\tilde{n}_{it}$)
+
+By identical logic:
+
+$$\tilde{\psi}_n \, \tilde{n}_{it}^{1/\nu} = \tilde{w}_t$$
+
+$$\boxed{\tilde{n}_{it} = \left(\frac{\tilde{w}_t}{\tilde{\psi}_n}\right)^\nu}$$
+
+**Critical observation:** Due to the GHH preference structure, labor supply depends *only* on wages and preference parameters—**not** on wealth, consumption, or the idiosyncratic state. This is by design: it isolates the portfolio/savings channel as the sole mechanism through which inequality affects the macroeconomy. All households of the same type supply the same labor at given wages.
+
+## (8) How $\eta > \sigma$ Generates Non-Homothetic Deposit Demand and Why It Is Central
+
+### The Mechanism in Detail
+
+The restriction $\eta > \sigma$ is the linchpin of the entire three-paper arc's macroeconomic mechanism. Here is why.
+
+**Step 1: What $\eta > \sigma$ means for curvature.**
+
+The parameter $\eta$ governs the curvature (concavity) of $v(d) = \psi_d d^{1-\eta}/(1-\eta)$, while $\sigma$ governs the curvature of consumption utility through $\bar{u}^{1-\sigma}/(1-\sigma)$. When $\eta > \sigma$, the marginal utility of deposits $v'(d) = \psi_d d^{-\eta}$ declines **faster** with scale than the marginal utility of consumption $\bar{u}^{-\sigma}$ declines with the consumption composite. Deposits are a **high-curvature good**—their marginal value is extremely high when scarce but drops off rapidly as holdings increase.
+
+**Step 2: Why this makes deposits a necessity good.**
+
+Consider two households: a poor household with low wealth $a^P$ and a rich household with high wealth $a^R \gg a^P$. Both face the same portfolio allocation condition:
+
+$$\psi_d \, d^{-\eta} = \beta \, \mathbb{E}_t \left[ \bar{u}_{t+1}^{-\sigma} (R^k_{t+1} - R^d_{t+1}) \right]$$
+
+For the poor household, $\bar{u}$ is low (low consumption composite), so $\bar{u}^{-\sigma}$ is high, making the right-hand side large. This requires $d^{-\eta}$ to be large, i.e., $d$ to be small—but the key is the *share*. Since $\eta > \sigma$, as wealth scales up, the marginal utility of deposits falls faster than the marginal cost of holding them (the forgone excess return, weighted by $\bar{u}^{-\sigma}$). The rich household, with high $\bar{u}$, has a lower RHS, which is consistent with somewhat higher $d$—but because $\eta$ is large, $d$ does not need to increase proportionally.
+
+Formally, if we heuristically consider how optimal $d$ scales with total wealth $a$, from the FOC:
+
+$$d^{-\eta} \propto \bar{u}^{-\sigma} \propto a^{-\sigma}$$
+
+$$\Rightarrow d \propto a^{\sigma/\eta}$$
+
+Since $\eta > \sigma$, we have $\sigma/\eta < 1$, so **deposits are concave in wealth**. The deposit-to-wealth ratio $d/a \propto a^{\sigma/\eta - 1} = a^{-(1-\sigma/\eta)}$ is **declining in wealth**. Deposits are a necessity: the rich hold more deposits in levels but a *shrinking share* of their portfolio in deposits.
+
+**Step 3: The mirror image—capital share rises with wealth.**
+
+Since the portfolio is $a = d + k$ and $d/a$ falls with $a$, the capital share $k/a$ **rises with wealth**. This is precisely Carroll (2000b)'s empirical finding: the rich hold portfolios dominated by risky, directly-held business equity, while the non-rich hold portfolios dominated by bank deposits and similar safe assets. The single parameter restriction $\eta > \sigma$ microfounds this pattern.
+
+**Step 4: Connection to Carroll (2000a) — Why the rich save so much.**
+
+The GHH composite with type-dependent $s_\chi$ means high types ($s_H$) have higher labor earnings. Combined with the standard consumption-smoothing motive (governed by $\sigma$), higher permanent income generates higher saving rates—especially as the safe, high-curvature deposit motive saturates. Beyond a threshold, additional saving is channeled almost entirely into risky capital, which earns higher expected returns, generating further wealth accumulation. This creates a self-reinforcing loop: higher income → more saving → saving channeled to capital → higher returns → more wealth → even higher saving rates. The $\eta > \sigma$ structure means the "capitalist spirit" for deposits saturates, so the rich save *into capital*, not deposits.
+
+**Step 5: The central macro mechanism of Doerr et al. (2026).**
+
+Now the aggregate consequences become clear through a chain of general equilibrium logic:
+
+1. **Rising top incomes** (increase in $s_H$ or shift in the distribution of $\xi$) → High-income households accumulate more wealth.
+
+2. **Portfolio reallocation** → Because $\eta > \sigma$, marginal wealth is directed toward capital ($k$), not deposits ($d$). The aggregate deposit supply $D = \int d_{it} \, di$ grows slowly relative to aggregate wealth; the aggregate capital supply $K = \int k_{it} \, di$ grows faster.
+
+3. **Bank deposit drain** → Banks fund small-firm lending from the deposit base. As deposits stagnate or decline (relative to the economy), the supply of loanable funds to banks contracts.
+
+4. **Rising lending rates** → With a thinner deposit base, banks must either raise deposit rates $R^d$ to attract funds (costly) or ration credit. The equilibrium lending rate to small firms rises.
+
+5. **Reduced small-firm job creation** → Small firms, who are bank-dependent (they cannot issue equity or bonds), face higher borrowing costs. Their hiring, investment, and entry decline. Employment at small firms falls.
+
+6. **Inequality amplification** → Reduced small-firm activity further concentrates income at the top (large firms and capital owners benefit relatively), reinforcing the cycle.
+
+**Step 6: Why no other parameter restriction would work.**
+
+If $\eta = \sigma$, deposit demand would be homothetic—all households would hold the same portfolio shares regardless of wealth. Rising top incomes would increase deposits and capital proportionally, with no deposit drain and no effect on bank lending. The entire mechanism collapses.
+
+If $\eta < \sigma$, deposits would be a *luxury* good—the rich would hold *more* deposits as a share of wealth, which contradicts the empirical evidence of Carroll (2000b) and would generate the opposite macro prediction (rising inequality would *increase* deposit supply and *lower* lending rates).
+
+Only $\eta > \sigma$ simultaneously rationalizes: (i) the high saving rates of the rich (Carroll 2000a), (ii) the risky portfolio composition of the rich (Carroll 2000b), and (iii) the deposit-drain channel through which inequality reduces small-firm credit access (Doerr et al. 2026).
+
+### Summary Table
+
+| Wealth Level | $d/a$ (Deposit Share) | $k/a$ (Capital Share) | Saving Rate | Portfolio |
+|---|---|---|---|---|
+| Low | High | Low | Low | Mostly deposits |
+| Medium | Medium | Medium | Medium | Mixed |
+| High | Low | High | High | Mostly risky capital |
+
+This is the non-homotheticity generated by $\eta > \sigma$: a single preference parameter restriction that threads through all three papers, from micro saving behavior to portfolio choice to macroeconomic consequences for financial intermediation and employment.

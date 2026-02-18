@@ -1,0 +1,242 @@
+# =============================================================================
+# Doerr, Drechsel, Lee (2026) - "Income Inequality and Job Creation"
+# Banking Sector & Stationary Equilibrium (Equation 19 + Market Clearing)
+#
+# The banking sector is NOT a dynamic optimization problem.  It is a
+# static zero-profit condition that links the household and firm blocks:
+#
+#   R_ell = R_d + Xi / D                                         (eq 19)
+#
+# where Xi is a fixed intermediation cost and D is aggregate deposits.
+# This creates an endogenous credit spread that is a decreasing, convex
+# function of deposit supply — the paper's key amplification mechanism.
+#
+# This YAML describes the banking sector's structure and the full set of
+# stationary equilibrium conditions that tie the four blocks together.
+# It is not a Bellman problem; it is the "glue" that closes the model.
+# =============================================================================
+
+name: BankingEquilibrium_DDL2026
+
+model_type: stationary_equilibrium
+
+# =============================================================================
+# EQUILIBRIUM PRICES (to be solved for)
+# =============================================================================
+symbols:
+
+    prices: [Rd, R_ell, Rk, w, wtilde]
+
+    # Aggregate quantities (endogenous)
+    aggregates: [D, K_agg, N_pub, N_priv, M_priv, mu_e]
+
+    # Parameters
+    parameters: [Xi, phitilde, phitilde_e, ftilde_max, ftilde_e_max,
+                  kappa_max, alphatilde, theta, gamma, beta_f,
+                  lambda_exit, delta, rho_z, sigma_z,
+                  sigma, eta, nu, beta, psi_d, psi_n, psitilde_n,
+                  s_L, s_H, mu_L, mu_H, rho_xi, sigma_eps,
+                  tau, phi_tax]
+
+# =============================================================================
+# BANKING SECTOR (Equation 19)
+# =============================================================================
+equations:
+
+    # -----------------------------------------------------------------
+    # (a) Bank zero-profit condition
+    #
+    # Competitive banks collect deposits D at gross rate Rd,
+    # lend to private firms at gross rate R_ell,
+    # and incur a fixed cost Xi per period.
+    #
+    # Zero profit:  R_ell * D - Rd * D - Xi = 0
+    # =>            R_ell = Rd + Xi / D
+    # -----------------------------------------------------------------
+    banking:
+        - R_ell = Rd + Xi / D
+
+    # -----------------------------------------------------------------
+    # (b) Loan market clearing
+    #
+    # Total bank lending = total private-firm borrowing:
+    #   D = phitilde * wtilde * N_priv + phitilde_e * FC_agg
+    #
+    # where FC_agg = aggregate fixed + entry costs requiring financing
+    # (depends on the mass and distribution of active/entering firms).
+    # -----------------------------------------------------------------
+    loan_market:
+        - D = phitilde * wtilde * N_priv + phitilde_e * FC_agg
+
+    # -----------------------------------------------------------------
+    # (c) Capital market clearing
+    #
+    # Aggregate household capital = aggregate public-firm capital demand:
+    #   sum_i k'_i = K_agg
+    # -----------------------------------------------------------------
+    capital_market:
+        - K_supply = K_agg
+
+    # -----------------------------------------------------------------
+    # (d) Deposit market clearing
+    #
+    # Aggregate household deposits = aggregate bank lending:
+    #   sum_i d'_i = D
+    # -----------------------------------------------------------------
+    deposit_market:
+        - D_supply = D
+
+    # -----------------------------------------------------------------
+    # (e) Labor market clearing (two sectors)
+    #
+    # Public sector:  sum_i n_i = N_pub (from public firm FOCs)
+    # Private sector: sum_i ntilde_i = N_priv (from private firm FOCs)
+    #
+    # With GHH preferences, labor supply is analytical:
+    #   n = (w / psi_n)^nu,  ntilde = (wtilde / psitilde_n)^nu
+    # Total labor supply per type:
+    #   N_pub_supply = (mu_L + mu_H) * (w / psi_n)^nu
+    #   N_priv_supply = (mu_L + mu_H) * (wtilde / psitilde_n)^nu
+    # -----------------------------------------------------------------
+    labor_market:
+        - N_pub_supply = N_pub_demand
+        - N_priv_supply = N_priv_demand
+
+    # -----------------------------------------------------------------
+    # (f) Goods market clearing
+    #
+    # C_agg + delta * K_agg + Xi = Y_pub + Y_priv
+    # -----------------------------------------------------------------
+    goods_market:
+        - C_agg + delta * K_agg + Xi = Y_pub + Y_priv
+
+    # -----------------------------------------------------------------
+    # (g) Distribution stationarity
+    #
+    # mu = Phi(mu, h)
+    # The household distribution over (d, k, xi, chi) is a fixed point
+    # of the law of motion induced by decision rules and the AR(1) process.
+    # -----------------------------------------------------------------
+
+# =============================================================================
+# HOW THE FOUR BLOCKS CONNECT THROUGH PRICES
+#
+#   Household  ---(supplies D, K, labor)---> Markets
+#   Public Firm ---(demands K, N_pub)------> Markets
+#   Private Firm --(demands loans, N_priv)-> Markets
+#   Bank ---------(intermediates D -> loans)-> Markets
+#
+#   R_d  : clears deposit market (D^supply = D^demand)
+#   R_k  : clears capital market (K^supply = K^demand)
+#   w    : clears public-sector labor market
+#   wtilde: clears private-sector labor market
+#   R_ell: determined by banking zero-profit given R_d and D
+# =============================================================================
+
+calibration:
+
+    # ── Banking ──
+    Xi:            0.1018      # Fixed intermediation cost (Table 3, Panel (b))
+                                # targets average deposit rate of 4%
+
+    # ── Private firm bank dependence ──
+    phitilde:      0.952       # Working-capital share financed by bank
+    phitilde_e:    0.801       # Fixed/entry cost share financed by bank
+
+    # ── Private firm technology ──
+    alphatilde:    0.99        # DRS exponent
+    ftilde_max:    0.0043      # Max operating fixed cost
+    ftilde_e_max:  0.04        # Max entry fixed cost
+    kappa_max:     14964.0     # Max IPO cost
+
+    # ── Public firm technology ──
+    theta:         0.2193      # Capital share
+    gamma:         0.9883      # Returns to scale
+    delta:         0.06        # Depreciation
+
+    # ── Common firm parameters ──
+    beta_f:        0.9182      # Firm/household discount factor
+    lambda_exit:   0.10        # Exogenous exit probability
+    rho_z:         0.9         # Firm productivity persistence
+    sigma_z:       0.0297      # Firm productivity innovation std
+
+    # ── Household preferences ──
+    sigma:         1.50        # Risk aversion
+    eta:           2.6096      # Deposit utility curvature (eta > sigma)
+    nu:            3.0         # Frisch elasticity
+    beta:          0.9182      # Discount factor
+    psi_d:         0.0632      # Deposit utility weight
+    psi_n:         1.2871      # Labor disutility (public sector)
+    psitilde_n:    1.2349      # Labor disutility (private sector)
+
+    # ── Household types ──
+    s_L:           1.0         # Low-type scale (normalized)
+    s_H:           4.6324      # High-type scale
+    mu_L:          0.9         # Mass of low type
+    mu_H:          0.1         # Mass of high type
+    rho_xi:        0.92        # Idiosyncratic productivity persistence
+    sigma_eps:     0.12        # Idiosyncratic productivity innovation std
+
+    # ── Redistribution experiment ──
+    tau:           0.0         # Tax/transfer amount (0 in baseline; 0.0282 in experiment)
+    phi_tax:       3.5         # Progressivity of within-group redistribution
+
+    # ── Initial equilibrium prices ──
+    Rd:            1.04        # Gross deposit rate
+    Rk:            1.08        # Gross capital return
+    R_ell:         1.06        # Gross lending rate (≈ Rd + Xi/D)
+    w:             1.0         # Public-sector wage
+    wtilde:        1.0         # Private-sector wage
+
+# =============================================================================
+# SOLUTION ALGORITHM (Aiyagari-style nested loops)
+#
+# OUTER LOOP: Guess (Rd, w, wtilde)
+#   |
+#   ├── PUBLIC FIRM BLOCK: Given (Rk, w), solve V(z) analytically
+#   |   Returns: K^d(z), N^d(z), aggregate K_agg, N_pub
+#   |
+#   ├── PRIVATE FIRM BLOCK: Given (R_ell, wtilde), solve Wtilde(z) by VFI
+#   |   Returns: ntilde*(z), ftilde*(z), kappa*(z), ftilde_e*(z), N_priv, mu_e
+#   |   Requires V(z) from public block for IPO option
+#   |
+#   ├── BANKING: R_ell = Rd + Xi / D
+#   |   D must be consistent with private-firm loan demand
+#   |
+#   ├── HOUSEHOLD BLOCK: Given (Rd, Rk, w, wtilde), solve V(d,k,xi;chi) by VFI
+#   |   Returns: policy functions d'(.), k'(.), c(.)
+#   |   Simulate stationary distribution mu
+#   |   Compute: D_supply = integral d' dmu,  K_supply = integral k' dmu
+#   |
+#   ├── CHECK MARKET CLEARING:
+#   |   Capital: K_supply = K_agg?         → update Rk
+#   |   Deposits: D_supply = D_demand?     → update Rd
+#   |   Public labor: N_pub_supply = N_pub_demand?  → update w
+#   |   Private labor: N_priv_supply = N_priv_demand? → update wtilde
+#   |   Banking: R_ell consistent?         → implied by Rd, D
+#   |
+#   └── CONVERGED? → Stationary Equilibrium
+#
+# EXPERIMENT: Raise top 10% share from 34.5% to 50.5% via tau = 0.0282
+# =============================================================================
+
+# =============================================================================
+# TARGETED MOMENTS (Table 3 and Section 5.2)
+#
+# Moment                                    Source          Target
+# ──────────────────────────────────────────────────────────────────
+# Deposit share, 3rd quintile               SCF             0.45
+# Top 10% deposit share                     SCF             0.22
+# Mean stock return                         -               1.08
+# Top 10% income share                      Frank (2009)    0.346
+# Capital depreciation rate                 NIPA            0.06
+# Employment share 500+                     BDS             0.469
+# Employment share 1-499                    BDS             0.531
+# Intensive margin estimate                 Table 1, Col 4  -0.133
+# Extensive margin estimate                 Table 1, Col 3  -0.027
+# Firm death rate                           BDS             0.10
+# Share of firms 500+                       BDS             0.003
+# Average deposit rate                      Call Reports    1.04
+# Labor supply share 500+                   BDS             0.469
+# Labor supply share 1-499                  BDS             0.531
+# =============================================================================

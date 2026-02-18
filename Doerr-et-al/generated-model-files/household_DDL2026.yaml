@@ -1,0 +1,181 @@
+# =============================================================================
+# Doerr, Drechsel, Lee (2026) - "Income Inequality and Job Creation"
+# Household Bellman Problem (Section 5, Equations 3-6)
+#
+# Households of permanent type chi in {L, H} choose consumption, labor supply,
+# deposits, and risky capital to maximize lifetime utility.
+#
+# GHH preferences eliminate wealth effects on labor supply:
+#   n  = (w / psi_n)^nu
+#   ntilde = (wtilde / psitilde_n)^nu
+# so the dynamic problem reduces to a portfolio choice over (d', k').
+#
+# The non-homothetic deposit utility (eta > sigma) generates declining
+# deposit shares in wealth — the paper's core mechanism linking inequality
+# to bank funding costs and job creation.
+#
+# V(d, k, xi; chi) = max_{d', k'} { u(ubar) + v(d') + beta * E[V(d', k', xi')] }
+#
+# where ubar = m - d' - k' - L(s_chi)
+#       m    = s_chi * xi * (w*n + wtilde*ntilde) + Rk*k + Rd*d + Pi - T
+#       L(s) = s * [psi_n * n^(1+1/nu)/(1+1/nu) + psitilde_n * ntilde^(1+1/nu)/(1+1/nu)]
+# =============================================================================
+
+name: Household_DDL2026
+
+model_type: dtmscc
+
+symbols:
+
+    # Endogenous states carried into the period
+    states: [d, k]
+
+    # Exogenous state: idiosyncratic productivity (AR(1) in logs)
+    exogenous: [xi]
+
+    # Controls: next-period asset holdings
+    # (consumption is residual from the budget constraint;
+    #  labor supply is pinned analytically by GHH FOCs)
+    controls: [d_next, k_next]
+
+    # Value function
+    values: [V]
+
+    # Parameters
+    parameters: [sigma, eta, nu, beta, psi_d, psi_n, psitilde_n,
+                  s_chi, Rd, Rk, w, wtilde, Pi_hh, T_hh,
+                  rho_xi, sigma_eps]
+
+definitions:
+
+    # Analytical labor supply (GHH, eqs 7e-7f in FOC derivation)
+    n_supply: (w / psi_n)^nu
+    ntilde_supply: (wtilde / psitilde_n)^nu
+
+    # Labor income per unit of s_chi * xi
+    labor_income: w * n_supply + wtilde * ntilde_supply
+
+    # Labor disutility per unit of s_chi
+    labor_disutility: |
+        s_chi * (psi_n * n_supply^(1 + 1/nu) / (1 + 1/nu)
+               + psitilde_n * ntilde_supply^(1 + 1/nu) / (1 + 1/nu))
+
+    # Total resources (eq 5 rearranged)
+    m: s_chi * xi * labor_income + Rk * k + Rd * d + Pi_hh - T_hh
+
+    # Consumption (residual from budget constraint)
+    c: m - d_next - k_next
+
+    # GHH composite (eq 3)
+    ubar: c - labor_disutility
+
+    # Period utility from consumption composite (CRRA)
+    u_cons: ubar^(1 - sigma) / (1 - sigma)
+
+    # Direct utility from deposits (non-homothetic, eq 3)
+    v_dep: psi_d * d_next^(1 - eta) / (1 - eta)
+
+equations:
+
+    # -----------------------------------------------------------------
+    # Transition for exogenous state
+    # -----------------------------------------------------------------
+    exogenous:
+        # log(xi') = rho_xi * log(xi) + eps,  eps ~ N(0, sigma_eps^2)
+        xi: !AR1
+            rho: rho_xi
+            sigma: sigma_eps
+
+    # -----------------------------------------------------------------
+    # Transition for endogenous states
+    # -----------------------------------------------------------------
+    transition:
+        - d(1) = d_next
+        - k(1) = k_next
+
+    # -----------------------------------------------------------------
+    # Euler equations / optimality conditions
+    #
+    # Deposit Euler (eq 7b, interior):
+    #   psi_d * d'^(-eta) + beta * E[ubar'^(-sigma) * Rd'] = ubar^(-sigma)
+    #
+    # Capital Euler (eq 7c, interior):
+    #   beta * E[ubar'^(-sigma) * Rk'] = ubar^(-sigma)
+    #
+    # Written as residuals = 0:
+    # -----------------------------------------------------------------
+    arbitrage:
+        # Deposit Euler equation (with complementarity d_next >= 0)
+        - psi_d * d_next^(-eta) + beta * E[ubar(1)^(-sigma) * Rd] - ubar^(-sigma)  | 0.0 <= d_next
+        # Capital Euler equation (with complementarity k_next >= 0)
+        - beta * E[ubar(1)^(-sigma) * Rk] - ubar^(-sigma)                          | 0.0 <= k_next
+
+    # -----------------------------------------------------------------
+    # Value function (eq 3-4)
+    # -----------------------------------------------------------------
+    value:
+        - V = ubar^(1 - sigma) / (1 - sigma) + psi_d * d_next^(1 - eta) / (1 - eta) + beta * E[V(1)]
+
+    # -----------------------------------------------------------------
+    # Feasibility / bounds
+    # -----------------------------------------------------------------
+    controls_lb: [0.0, 0.0]
+    controls_ub: [inf, inf]
+
+calibration:
+
+    # ── Preference parameters (Table 3) ──
+    sigma:         1.50        # relative risk aversion
+    eta:           2.6096      # deposit utility curvature (eta > sigma => non-homothetic)
+    nu:            3.0         # Frisch elasticity of labor supply
+    beta:          0.9182      # household discount factor
+    psi_d:         0.0632      # deposit utility weight
+    psi_n:         1.2871      # labor disutility, public-sector labor
+    psitilde_n:    1.2349      # labor disutility, private-sector labor
+
+    # ── Household type ──
+    # Solve separately for chi = L and chi = H
+    s_chi:         1.0         # s_L = 1.0 (normalized); s_H = 4.6324
+
+    # ── Prices (GE equilibrium targets) ──
+    Rd:            1.04        # gross deposit return
+    Rk:            1.08        # gross capital return (mean US stock return)
+    w:             1.0         # public-sector wage (normalized)
+    wtilde:        1.0         # private-sector wage (normalized)
+    Pi_hh:         0.0         # profits (distributed in GE)
+    T_hh:          0.0         # taxes/transfers (set in experiments)
+
+    # ── Idiosyncratic productivity process (Table 3, Panel (a)) ──
+    rho_xi:        0.92        # persistence
+    sigma_eps:     0.12        # innovation std dev
+
+    # ── Steady-state initial guesses ──
+    xi:            1.0
+    d:             1.0
+    k:             1.0
+    d_next:        1.0
+    k_next:        1.0
+    V:            -5.0
+
+    # ── Type H calibration (uncomment to solve high type) ──
+    # s_chi:       4.6324      # s_H from Table 3
+
+domain:
+    d: [0.0, 20.0]
+    k: [0.0, 20.0]
+
+exogenous:
+    xi:
+        type: AR1
+        rho: rho_xi
+        sigma: sigma_eps
+        N: 11
+        method: rouwenhorst
+
+options:
+    grid:
+        type: Cartesian
+        orders: [50, 50]
+    discretization:
+        method: rouwenhorst
+        N: 11

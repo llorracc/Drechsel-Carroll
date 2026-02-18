@@ -1,0 +1,259 @@
+# =============================================================================
+# Doerr, Drechsel, Lee (2026) - "Income Inequality and Job Creation"
+# Private (Bank-Dependent) Firm Bellman Problem (Section 5, Equations 7-14)
+#
+# Private firms use a DRS (span-of-control) technology:
+#   ytilde = z * ntilde^alphatilde - ftilde
+#
+# They must finance a share phitilde of the wage bill and phitilde_e of
+# fixed costs through bank loans at gross rate R_ell, creating a credit
+# cost wedge that is the paper's central transmission mechanism.
+#
+# The problem has three layers:
+#
+#   (i)  OPERATING VALUE Vtilde(z, ftilde):
+#        max_{ntilde} { z*ntilde^alphatilde
+#                        - (1 + phitilde*(R_ell-1))*wtilde*ntilde
+#                        - (1 + phitilde_e*(R_ell-1))*ftilde }
+#                      + beta_f * E[Wtilde(z') | z]
+#
+#   (ii) BEGINNING-OF-PERIOD VALUE Wtilde(z):
+#        Integrates over the i.i.d. fixed cost draw ftilde ~ U[0, ftilde_max]
+#        and the i.i.d. IPO cost draw kappa ~ U[0, kappa_max], with
+#        endogenous exit, transition-to-public, and entry cutoffs.
+#
+#   (iii) CUTOFF RULES:
+#         - Exit if ftilde > ftilde_star(z)          [eq 10]
+#         - Transition to public if kappa <= kappa_star(z)  [eq 11]
+#         - Enter if ftilde_e <= ftilde_e_star(z)    [eq 13]
+#
+# The public-firm value V(z) enters as the outside option for IPO.
+# =============================================================================
+
+name: PrivateFirm_DDL2026
+
+model_type: dtmscc
+
+symbols:
+
+    # Exogenous state: persistent productivity (Markov, AR(1) in logs)
+    exogenous: [z]
+
+    # The i.i.d. shocks (ftilde, kappa, ftilde_e) are integrated out
+    # analytically using the uniform distribution, yielding cutoff rules.
+    # They do not appear as state variables.
+
+    # Static control: employment (chosen conditional on operating)
+    controls: [ntilde]
+
+    # Value functions
+    values: [Wtilde, Vtilde_integrated]
+
+    # Auxiliary / derived quantities tracked by the solver
+    auxiliaries: [ntilde_star, pi_var, ftilde_star, kappa_star,
+                  ptilde, ftilde_e_star, p_survive, p_entry]
+
+    parameters: [alphatilde, beta_f, phitilde, phitilde_e,
+                  R_ell, wtilde, ftilde_max, kappa_max, ftilde_e_max,
+                  lambda_exit, rho_z, sigma_z]
+
+definitions:
+
+    # Effective labor cost including bank-intermediated working capital
+    w_eff: (1 + phitilde * (R_ell - 1)) * wtilde
+
+    # Effective fixed cost multiplier (bank-financed share of fixed cost)
+    f_eff: 1 + phitilde_e * (R_ell - 1)
+
+    # ── Equation 9: Optimal employment ──
+    # FOC:  alphatilde * z * ntilde^(alphatilde-1) = w_eff
+    # =>    ntilde_star = (alphatilde * z / w_eff)^(1/(1-alphatilde))
+    ntilde_opt: (alphatilde * z / w_eff)^(1 / (1 - alphatilde))
+
+    # ── Variable profit (DRS profit function) ──
+    # pi(z) = z * ntilde_star^alphatilde - w_eff * ntilde_star
+    #       = (1 - alphatilde) * (alphatilde / w_eff)^(alphatilde/(1-alphatilde))
+    #         * z^(1/(1-alphatilde))
+    pi_variable: z * ntilde_opt^alphatilde - w_eff * ntilde_opt
+
+    # ── Equation 10: Exit cutoff ──
+    # Vtilde(z, ftilde) = 0  =>
+    # ftilde_star(z) = [pi(z) + beta_f * E[Wtilde(z')|z]] / f_eff
+    # Clamped to [0, ftilde_max].
+    A_z: pi_variable + beta_f * (1 - lambda_exit) * E[Wtilde(z(1))]
+
+    ftilde_cutoff: min(max(A_z / f_eff, 0), ftilde_max)
+
+    # Survival probability: Pr(ftilde <= ftilde_star) = ftilde_star / ftilde_max
+    prob_survive: ftilde_cutoff / ftilde_max
+
+    # ── Integrated value of operating (conditional on staying private) ──
+    # integral = (ftilde_star / ftilde_max) * [A_z - f_eff * ftilde_star / 2]
+    integral_Vtilde: |
+        (ftilde_cutoff / ftilde_max) * (A_z - f_eff * ftilde_cutoff / 2)
+
+    # ── Equation 11: IPO / transition-to-public cutoff ──
+    # kappa_star(z) = V_public(z) - integral_Vtilde
+    # Clamped to [0, kappa_max].
+    # NOTE: V_public(z) is computed from the public firm block and
+    # passed in as an exogenous function of z.  In the YAML we denote
+    # it V_pub(z); in practice it is precomputed and interpolated.
+    kappa_cutoff: min(max(V_pub - integral_Vtilde, 0), kappa_max)
+
+    # Transition probability
+    prob_transition: kappa_cutoff / kappa_max
+
+    # Expected IPO cost conditional on transitioning
+    kappa_bar: kappa_cutoff / 2
+
+    # ── Equation 12: Beginning-of-period value ──
+    # Wtilde(z) = ptilde(z)*[V_pub(z) - kappa_bar(z)]
+    #           + (1 - ptilde(z)) * integral_Vtilde
+    Wtilde_rhs: |
+        prob_transition * (V_pub - kappa_bar)
+        + (1 - prob_transition) * integral_Vtilde
+
+    # ── Equation 13: Entry cutoff ──
+    # ftilde_e_star(z) = Wtilde(z) / f_eff
+    # Clamped to [0, ftilde_e_max].
+    ftilde_e_cutoff: min(max(Wtilde / f_eff, 0), ftilde_e_max)
+
+    # Entry probability per potential entrant at productivity z
+    prob_entry: ftilde_e_cutoff / ftilde_e_max
+
+equations:
+
+    # -----------------------------------------------------------------
+    # Exogenous state transition (same process as public firms)
+    # -----------------------------------------------------------------
+    exogenous:
+        z: !AR1
+            rho: rho_z
+            sigma: sigma_z
+
+    # -----------------------------------------------------------------
+    # Optimality: intratemporal FOC for employment (eq 9)
+    #   alphatilde * z * ntilde^(alphatilde-1) - w_eff = 0
+    # -----------------------------------------------------------------
+    arbitrage:
+        - alphatilde * z * ntilde^(alphatilde - 1) - (1 + phitilde * (R_ell - 1)) * wtilde
+
+    # -----------------------------------------------------------------
+    # Value function equations
+    #
+    # Wtilde(z) — beginning-of-period value (eq 12)
+    #   Integrates over ftilde ~ U[0, ftilde_max] and kappa ~ U[0, kappa_max]
+    #   using the cutoff rules derived above.
+    #
+    # Vtilde_integrated — expected operating value conditional on staying
+    #   private (used internally; equals integral_Vtilde from definitions)
+    # -----------------------------------------------------------------
+    value:
+        - Wtilde = prob_transition * (V_pub - kappa_bar) + (1 - prob_transition) * integral_Vtilde
+        - Vtilde_integrated = integral_Vtilde
+
+    # -----------------------------------------------------------------
+    # Auxiliary equations (for output / diagnostics)
+    # -----------------------------------------------------------------
+    auxiliary:
+        - ntilde_star = ntilde_opt
+        - pi_var = pi_variable
+        - ftilde_star = ftilde_cutoff
+        - kappa_star = kappa_cutoff
+        - ptilde = prob_transition
+        - ftilde_e_star = ftilde_e_cutoff
+        - p_survive = prob_survive
+        - p_entry = prob_entry
+
+    # -----------------------------------------------------------------
+    # Controls bounds
+    # -----------------------------------------------------------------
+    controls_lb: [1e-10]
+    controls_ub: [inf]
+
+calibration:
+
+    # ── Technology (Table 3) ──
+    alphatilde:    0.99        # DRS exponent (close to 1 => span-of-control)
+
+    # ── Discount and exit ──
+    beta_f:        0.9182      # firm discount factor
+    lambda_exit:   0.10        # exogenous exit probability
+
+    # ── Bank dependence (Table 3, Panel (b)) ──
+    phitilde:      0.952       # working-capital bank dependence
+    phitilde_e:    0.801       # fixed-cost bank dependence
+
+    # ── Prices ──
+    R_ell:         1.06        # gross lending rate (≈ Rd + Xi/D in GE)
+    wtilde:        1.0         # private-sector wage (normalized)
+
+    # ── Cost distribution bounds (Table 3) ──
+    ftilde_max:    0.0043      # max operating fixed cost (targets 10% exit rate)
+    kappa_max:     14964.0     # max IPO cost (targets 0.3% public firm share)
+    ftilde_e_max:  0.04        # max entry fixed cost (Table 3, Panel (a))
+
+    # ── Productivity process (Table 3) ──
+    rho_z:         0.9         # AR(1) persistence
+    sigma_z:       0.0297      # innovation std dev
+
+    # ── Steady-state initial guesses ──
+    z:             1.0
+    ntilde:        1.0
+    Wtilde:        1.0
+    Vtilde_integrated: 0.5
+
+    # ── Public firm value V_pub(z) ──
+    # In a full solver, V_pub is precomputed from the public firm block
+    # (public_firm_DDL2026.yaml) and passed in as an interpolated function
+    # of z.  For the YAML specification, we note it as an external input.
+    # At z=1 with Table 3 parameters, V_pub ≈ 10 (from public_firm_solver.py).
+
+domain:
+    z: [0.5, 2.0]
+
+exogenous:
+    z:
+        type: AR1
+        rho: rho_z
+        sigma: sigma_z
+        N: 51
+        method: rouwenhorst
+
+options:
+    grid:
+        type: Cartesian
+        orders: [51]
+    discretization:
+        method: rouwenhorst
+        N: 51
+
+# =============================================================================
+# NOTES ON SOLVING THIS MODEL
+#
+# 1. The private firm problem REQUIRES V_pub(z) from the public firm block.
+#    Solve public_firm_DDL2026.yaml first, then pass V_pub(z) in.
+#
+# 2. The i.i.d. shocks (ftilde, kappa, ftilde_e) are integrated out
+#    analytically using the uniform distribution properties:
+#      E[x | x <= x*] = x*/2  and  Pr(x <= x*) = x*/x_max.
+#    They never appear as state variables.
+#
+# 3. With alphatilde = 0.99 (near CRS), firm sizes are extremely sensitive
+#    to w_eff.  In partial equilibrium (wtilde = 1), option values dominate
+#    and extensive margins may hit corners.  Full GE is needed for all
+#    margins to be simultaneously interior.
+#
+# 4. The comparative statics table (Section 6 of Doerr_et_al):
+#
+#    Variable          d/dR_ell   Channel              Margin
+#    ─────────────────────────────────────────────────────────
+#    ntilde*(z)          < 0      Working capital       Intensive
+#    pi(z)               < 0      Envelope theorem      Intensive
+#    ftilde*(z)          < 0      Exit threshold        Extensive (exit)
+#    ftilde_e*(z)        < 0      Entry threshold       Extensive (entry)
+#    mu_e                < 0      Fewer entrants        Extensive (entry)
+#    kappa*(z)           > 0      Escape bank dep.      Extensive (IPO)
+#    ptilde(z)           > 0      More transitions      Extensive (IPO)
+#    Wtilde(z)           < 0      All values fall       Total
+# =============================================================================

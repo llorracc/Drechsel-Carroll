@@ -1,0 +1,380 @@
+# The Private (Bank-Dependent) Firm Bellman Problem in Doerr, Drechsel & Lee (2026)
+
+This is a detailed exposition of equations 7–14 from Section 5 of the GE model, describing the bank-dependent private firm sector — the critical channel through which rising top-income inequality transmits to job creation via the banking system.
+
+---
+
+## 1. State Space
+
+The private firm's problem is characterized by the following state variables:
+
+| State Variable | Domain | Description |
+|---|---|---|
+| $z$ | $z \in \mathcal{Z} \subset \mathbb{R}_{++}$ | Idiosyncratic productivity, persistent (Markov) |
+| $\tilde{f}$ | $\tilde{f} \sim U[0, \tilde{f}_{\max}]$, i.i.d. | Per-period fixed operating cost draw |
+| $R_\ell$ | $R_\ell \in \mathbb{R}_{++}$ | Gross bank lending rate (equilibrium price, taken as given by the firm) |
+
+The key distinction from public firms is that private firms **must** finance through bank loans — they cannot access capital markets directly. The aggregate state relevant to the firm is summarized by the lending rate $R_\ell$, which is the price at which banks intermediate household deposits into firm credit.
+
+---
+
+## 2. Controls
+
+| Control | Domain | Description |
+|---|---|---|
+| $\tilde{n}$ | $\tilde{n} \geq 0$ | Employment (labor input), chosen each period conditional on operating |
+| Operate vs. Exit | $\{0, 1\}$ | Endogenous exit decision based on fixed cost draw |
+| Transition to public | $\{0, 1\}$ | Endogenous IPO/transition decision based on IPO cost draw $\kappa$ |
+| Enter vs. Stay out | $\{0, 1\}$ | Potential entrants decide whether to pay entry cost |
+
+The static labor choice $\tilde{n}$ is the intensive-margin control; the extensive-margin controls are the discrete operate/exit, transition, and entry decisions, each governed by a cutoff rule.
+
+---
+
+## 3. Technology and Financing Structure
+
+### Equation 7 — Technology (Lucas Span-of-Control)
+
+$$
+\tilde{y} = z \, \tilde{n}^{\tilde{\alpha}} - \tilde{f}, \qquad \tilde{\alpha} < 1
+$$
+
+This is a **decreasing returns to scale** (DRS) production function in the tradition of Lucas (1978) span-of-control models. The parameter $\tilde{\alpha} < 1$ ensures that firm size is finite and pinned down by productivity $z$. The fixed cost $\tilde{f}$ is drawn i.i.d. each period, creating a selection margin.
+
+### Financing Structure
+
+Private firms are **bank-dependent** and must borrow from banks at gross rate $R_\ell$ to finance two components:
+
+| Component | Bank-Financed Share | Interpretation |
+|---|---|---|
+| Fixed operating cost $\tilde{f}$ | $\tilde{\varphi}_e$ | Share of fixed cost requiring intra-period bank credit |
+| Wage bill $\tilde{w} \cdot \tilde{n}$ | $\tilde{\varphi}$ | Share of wage bill requiring working-capital bank loans |
+
+The effective cost of the fixed input becomes $(1 + \tilde{\varphi}_e(R_\ell - 1))\tilde{f}$, and the effective cost of labor becomes $(1 + \tilde{\varphi}(R_\ell - 1))\tilde{w}\tilde{n}$. When $R_\ell = 1$ (costless credit), these collapse to $\tilde{f}$ and $\tilde{w}\tilde{n}$ respectively. The wedge $(R_\ell - 1)$ scaled by the bank-dependence parameters $\tilde{\varphi}_e, \tilde{\varphi} \in [0,1]$ is the **credit cost channel**.
+
+---
+
+## 4. All Value Functions
+
+### Equation 8 — Value of an Operating Private Firm: $\tilde{V}(z, \tilde{f})$
+
+Conditional on choosing to operate (i.e., not exiting), the private firm solves:
+
+$$
+\boxed{
+\tilde{V}(z, \tilde{f}) = \max_{\tilde{n}} \left\{ z \, \tilde{n}^{\tilde{\alpha}} - \left(1 + \tilde{\varphi}_e(R_\ell - 1)\right)\tilde{f} - \left(1 + \tilde{\varphi}(R_\ell - 1)\right)\tilde{w}\,\tilde{n} \right\} + \beta_f \, \mathbb{E}\!\left[\tilde{W}(z') \,\big|\, z\right]
+}
+$$
+
+**Interpretation:** The firm maximizes current-period profits — revenue minus bank-intermediated fixed costs and bank-intermediated labor costs — plus the discounted expected beginning-of-next-period value. The discount factor $\beta_f$ is the firm's (owner's) discount factor. The continuation value $\tilde{W}(z')$ is the **beginning-of-period** value before the next period's fixed cost and IPO cost are realized.
+
+The separation into $\tilde{V}$ (after fixed cost realization, conditional on operating) and $\tilde{W}$ (before realizations) is essential: it creates the option-value structure that generates cutoff rules.
+
+### Equation 9 — Optimal Employment
+
+Taking the first-order condition of the static profit maximization within $\tilde{V}$:
+
+$$
+\frac{\partial}{\partial \tilde{n}}: \quad \tilde{\alpha} \, z \, \tilde{n}^{\tilde{\alpha}-1} = \left(1 + (R_\ell - 1)\tilde{\varphi}\right)\tilde{w}
+$$
+
+Solving for $\tilde{n}$:
+
+$$
+\boxed{
+\tilde{n}^*(z) = \left[\frac{\tilde{\alpha} \, z}{\left(1 + (R_\ell - 1)\tilde{\varphi}\right)\tilde{w}}\right]^{\frac{1}{1 - \tilde{\alpha}}}
+}
+$$
+
+**Key observation:** Optimal employment depends on $z$ but **not** on $\tilde{f}$ — the fixed cost affects only the extensive margin (operate or exit), not the intensive margin. This is the standard DRS result. Employment is **decreasing in $R_\ell$** and **decreasing in $\tilde{\varphi}$** — higher lending rates or greater bank dependence directly suppress labor demand.
+
+Substituting $\tilde{n}^*(z)$ back into $\tilde{V}$, we obtain the **maximized operating value**:
+
+$$
+\tilde{V}(z, \tilde{f}) = \pi(z) - \left(1 + \tilde{\varphi}_e(R_\ell - 1)\right)\tilde{f} + \beta_f \, \mathbb{E}\!\left[\tilde{W}(z') \,\big|\, z\right]
+$$
+
+where $\pi(z)$ denotes the maximized variable profit:
+
+$$
+\pi(z) = z \, [\tilde{n}^*(z)]^{\tilde{\alpha}} - \left(1 + \tilde{\varphi}(R_\ell - 1)\right)\tilde{w}\,\tilde{n}^*(z)
+$$
+
+Using the optimal $\tilde{n}^*$, this can be expressed in closed form:
+
+$$
+\pi(z) = (1 - \tilde{\alpha}) \left[\frac{\tilde{\alpha}}{\left(1 + (R_\ell - 1)\tilde{\varphi}\right)\tilde{w}}\right]^{\frac{\tilde{\alpha}}{1-\tilde{\alpha}}} z^{\frac{1}{1-\tilde{\alpha}}}
+$$
+
+This is the DRS profit function — convex and increasing in $z$, decreasing in $(1 + (R_\ell - 1)\tilde{\varphi})\tilde{w}$.
+
+### Equation 12 — Beginning-of-Period Value: $\tilde{W}(z)$
+
+$$
+\boxed{
+\tilde{W}(z) = \tilde{p}(z)\left[V(z) - \bar{\kappa}(z)\right] + \left(1 - \tilde{p}(z)\right)\int_0^{\tilde{f}^*(z)} \tilde{V}(z, x)\, d\Phi_{\tilde{f}}(x)
+}
+$$
+
+where:
+- $\tilde{p}(z) = \Pr(\kappa \leq \kappa^*(z))$ is the endogenous probability of transitioning to public status
+- $V(z)$ is the value of a public firm (from the public firm block of the model)
+- $\bar{\kappa}(z) = \mathbb{E}[\kappa \mid \kappa \leq \kappa^*(z)]$ is the expected IPO cost conditional on transitioning
+- $\tilde{f}^*(z)$ is the exit cutoff (defined below)
+- $\Phi_{\tilde{f}}$ is the CDF of the fixed cost distribution $U[0, \tilde{f}_{\max}]$
+
+**Interpretation:** At the beginning of the period, before $\tilde{f}$ and $\kappa$ are realized, the firm's value is a probability-weighted average of two outcomes:
+
+1. **With probability $\tilde{p}(z)$**: The firm draws a sufficiently low IPO cost and transitions to public status, gaining value $V(z) - \bar{\kappa}(z)$.
+2. **With probability $1 - \tilde{p}(z)$**: The firm remains private and operates if and only if the fixed cost draw $\tilde{f} \leq \tilde{f}^*(z)$; otherwise it exits (with zero value, normalized).
+
+The integral $\int_0^{\tilde{f}^*(z)} \tilde{V}(z, x)\, d\Phi_{\tilde{f}}(x)$ captures the expected value of operating conditional on remaining private and drawing an acceptable fixed cost.
+
+---
+
+## 5. All Cutoff Rules with Derivations
+
+### Equation 10 — Exit Cutoff: $\tilde{f}^*(z)$
+
+The firm exits if and only if the operating value is non-positive. The **exit cutoff** is defined by:
+
+$$
+\boxed{\tilde{V}(z, \tilde{f}^*(z)) = 0}
+$$
+
+Substituting the maximized operating value:
+
+$$
+\pi(z) - \left(1 + \tilde{\varphi}_e(R_\ell - 1)\right)\tilde{f}^*(z) + \beta_f \, \mathbb{E}\!\left[\tilde{W}(z') \,\big|\, z\right] = 0
+$$
+
+**Solving for the cutoff:**
+
+$$
+\tilde{f}^*(z) = \frac{\pi(z) + \beta_f \, \mathbb{E}\!\left[\tilde{W}(z') \,\big|\, z\right]}{\left(1 + \tilde{\varphi}_e(R_\ell - 1)\right)}
+$$
+
+**The firm operates if $\tilde{f} \leq \tilde{f}^*(z)$ and exits if $\tilde{f} > \tilde{f}^*(z)$.**
+
+Since $\tilde{V}$ is linearly decreasing in $\tilde{f}$ (with slope $-(1 + \tilde{\varphi}_e(R_\ell-1))$), the cutoff is unique. Higher $R_\ell$ lowers $\tilde{f}^*$ through two channels:
+- The denominator increases (fixed cost financing is more expensive).
+- The numerator decreases (variable profits $\pi(z)$ fall and continuation values $\tilde{W}$ shrink).
+
+### Equation 11 — Transition-to-Public Cutoff: $\kappa^*(z)$
+
+A private firm with productivity $z$ transitions to public status if and only if the value of being public (net of IPO cost) exceeds the expected value of remaining private. The **IPO cutoff** is defined by:
+
+$$
+\boxed{V(z) - \kappa^*(z) = \int_0^{\tilde{f}^*(z)} \tilde{V}(z, x)\, d\Phi_{\tilde{f}}(x)}
+$$
+
+**Solving for the cutoff:**
+
+$$
+\kappa^*(z) = V(z) - \int_0^{\tilde{f}^*(z)} \tilde{V}(z, x)\, d\Phi_{\tilde{f}}(x)
+$$
+
+**The firm transitions to public if $\kappa \leq \kappa^*(z)$ and remains private otherwise.**
+
+**Derivation of the uniform-distribution simplification:** Since $\tilde{f} \sim U[0, \tilde{f}_{\max}]$, we have $d\Phi_{\tilde{f}}(x) = dx/\tilde{f}_{\max}$, so:
+
+$$
+\int_0^{\tilde{f}^*(z)} \tilde{V}(z, x)\, d\Phi_{\tilde{f}}(x) = \frac{1}{\tilde{f}_{\max}} \int_0^{\tilde{f}^*(z)} \left[\pi(z) - (1 + \tilde{\varphi}_e(R_\ell-1))x + \beta_f \mathbb{E}[\tilde{W}(z')|z]\right] dx
+$$
+
+$$
+= \frac{\tilde{f}^*(z)}{\tilde{f}_{\max}}\left[\pi(z) + \beta_f \mathbb{E}[\tilde{W}(z')|z] - \frac{(1+\tilde{\varphi}_e(R_\ell-1))\tilde{f}^*(z)}{2}\right]
+$$
+
+Using the exit cutoff condition $\pi(z) + \beta_f \mathbb{E}[\tilde{W}(z')|z] = (1+\tilde{\varphi}_e(R_\ell-1))\tilde{f}^*(z)$:
+
+$$
+= \frac{(1+\tilde{\varphi}_e(R_\ell-1))[\tilde{f}^*(z)]^2}{2\tilde{f}_{\max}}
+$$
+
+The transition probability is:
+
+$$
+\tilde{p}(z) = \frac{\kappa^*(z)}{\kappa_{\max}} = \frac{1}{\kappa_{\max}}\left[V(z) - \frac{(1+\tilde{\varphi}_e(R_\ell-1))[\tilde{f}^*(z)]^2}{2\tilde{f}_{\max}}\right]
+$$
+
+**Intuition:** A firm transitions to public when the gain from escaping bank dependence (accessing capital markets at lower cost) exceeds the IPO cost. Higher $R_\ell$ makes the public option more attractive (raising $\kappa^*$) but simultaneously reduces $\tilde{f}^*$ (tightening the survival margin), creating an ambiguous net effect — a key tension in the model.
+
+### Equation 13 — Entry Cutoff: $\tilde{f}_e^*(z)$
+
+Potential entrants draw a productivity $z$ and an entry fixed cost $\tilde{f}_e \sim U[0, \tilde{f}_{e,\max}]$ i.i.d. A potential entrant enters if and only if the beginning-of-period value exceeds the bank-financed entry cost:
+
+$$
+\boxed{\tilde{W}(z) - \left(1 + \tilde{\varphi}_e(R_\ell - 1)\right)\tilde{f}_e^*(z) = 0}
+$$
+
+**Solving for the cutoff:**
+
+$$
+\tilde{f}_e^*(z) = \frac{\tilde{W}(z)}{\left(1 + \tilde{\varphi}_e(R_\ell - 1)\right)}
+$$
+
+**The potential entrant enters if $\tilde{f}_e \leq \tilde{f}_e^*(z)$ and stays out otherwise.**
+
+Note the parallel structure with the exit cutoff: both operating and entry fixed costs are financed at the same bank-dependent rate $(1 + \tilde{\varphi}_e(R_\ell-1))$, creating symmetric effects on entry and exit margins.
+
+### Equation 14 — Mass of Entrants
+
+$$
+\boxed{\tilde{\mu}_e = \int \int_0^{\tilde{f}_e^*(z)} d\Phi_{\tilde{f}_e}\, d\Phi_z = \int \frac{\tilde{f}_e^*(z)}{\tilde{f}_{e,\max}}\, d\Phi_z}
+$$
+
+where $\Phi_z$ is the distribution over productivity draws for potential entrants and $\Phi_{\tilde{f}_e}$ is the CDF of entry costs. The mass of entrants is obtained by integrating the probability of entry (drawing $\tilde{f}_e$ below the cutoff) over the distribution of productivity types.
+
+---
+
+## 6. Complete Comparative Statics with Respect to $R_\ell$ and Bank Dependence
+
+### 6.1 Effect of $R_\ell$ on Optimal Employment (Intensive Margin)
+
+From equation 9:
+
+$$
+\frac{\partial \tilde{n}^*(z)}{\partial R_\ell} = \frac{1}{1-\tilde{\alpha}} \left[\frac{\tilde{\alpha}\, z}{(1+\tilde{\varphi}(R_\ell-1))\tilde{w}}\right]^{\frac{1}{1-\tilde{\alpha}}} \cdot \frac{-\tilde{\varphi}}{1+\tilde{\varphi}(R_\ell-1)} < 0
+$$
+
+**Result:** $\partial \tilde{n}^*/\partial R_\ell < 0$. Higher lending rates **unambiguously reduce employment** at every private firm. The magnitude is proportional to $\tilde{\varphi}$ — firms with greater bank dependence in working capital suffer larger employment losses.
+
+The **elasticity** of employment with respect to the effective wage wedge is:
+
+$$
+\varepsilon_{\tilde{n}, R_\ell} = -\frac{\tilde{\varphi}}{(1-\tilde{\alpha})(1+\tilde{\varphi}(R_\ell-1))} \cdot R_\ell
+$$
+
+Under DRS with $\tilde{\alpha}$ close to 1 (large span of control), the employment response is amplified.
+
+### 6.2 Effect of $R_\ell$ on Variable Profits
+
+$$
+\frac{\partial \pi(z)}{\partial R_\ell} = -\tilde{\varphi}\,\tilde{w}\,\tilde{n}^*(z) < 0
+$$
+
+By the envelope theorem (since $\tilde{n}^*$ is optimal), the profit loss equals the bank-dependence wedge times the wage bill. More productive firms (higher $z$, hence higher $\tilde{n}^*$) lose more in absolute terms but proportionally the effect is scale-neutral due to DRS.
+
+### 6.3 Effect of $R_\ell$ on the Exit Cutoff
+
+$$
+\frac{\partial \tilde{f}^*(z)}{\partial R_\ell} = \frac{\frac{\partial \pi}{\partial R_\ell} + \beta_f \frac{\partial \mathbb{E}[\tilde{W}']}{\partial R_\ell}}{(1+\tilde{\varphi}_e(R_\ell-1))} - \frac{\tilde{\varphi}_e \left[\pi(z)+\beta_f\mathbb{E}[\tilde{W}']\right]}{(1+\tilde{\varphi}_e(R_\ell-1))^2} < 0
+$$
+
+Both terms in the numerator are negative (lower profits, lower continuation values) and the second term subtracts a positive quantity. **Result:** $\partial \tilde{f}^*/\partial R_\ell < 0$. Higher lending rates tighten the exit threshold — more firms exit at any given productivity level.
+
+The **exit rate** among firms with productivity $z$ is:
+
+$$
+\text{Exit rate}(z) = 1 - \frac{\tilde{f}^*(z)}{\tilde{f}_{\max}}
+$$
+
+which is increasing in $R_\ell$.
+
+### 6.4 Effect of $R_\ell$ on the Entry Cutoff and Entry Mass
+
+$$
+\frac{\partial \tilde{f}_e^*(z)}{\partial R_\ell} = \frac{1}{(1+\tilde{\varphi}_e(R_\ell-1))}\frac{\partial \tilde{W}(z)}{\partial R_\ell} - \frac{\tilde{\varphi}_e \tilde{W}(z)}{(1+\tilde{\varphi}_e(R_\ell-1))^2} < 0
+$$
+
+Since $\partial \tilde{W}/\partial R_\ell < 0$ (the beginning-of-period value falls as all downstream values shrink), both terms are negative. **Result:** $\partial \tilde{f}_e^*/\partial R_\ell < 0$, and consequently:
+
+$$
+\frac{\partial \tilde{\mu}_e}{\partial R_\ell} = \int \frac{1}{\tilde{f}_{e,\max}} \frac{\partial \tilde{f}_e^*(z)}{\partial R_\ell}\, d\Phi_z < 0
+$$
+
+**Higher lending rates reduce entry.** This is the entry channel of the job-creation mechanism.
+
+### 6.5 Effect of $R_\ell$ on the IPO/Transition Cutoff
+
+This is the most subtle comparative static:
+
+$$
+\frac{\partial \kappa^*(z)}{\partial R_\ell} = \underbrace{\frac{\partial V(z)}{\partial R_\ell}}_{\approx\, 0\text{ (public firms don't borrow from banks)}} - \frac{\partial}{\partial R_\ell}\int_0^{\tilde{f}^*(z)} \tilde{V}(z,x)\, d\Phi_{\tilde{f}}(x)
+$$
+
+Since public firms access capital markets directly, $\partial V/\partial R_\ell \approx 0$ (or is small). The second term is negative (the expected private value falls). Therefore:
+
+$$
+\frac{\partial \kappa^*(z)}{\partial R_\ell} > 0
+$$
+
+**Result:** Higher lending rates make the private-to-public transition more attractive (the firm is more willing to pay a higher IPO cost to escape bank dependence). However, this is an **extensive margin reallocation** — the surviving high-productivity firms transition, but many low-productivity firms simply exit. The net effect on aggregate employment depends on whether public firms create as many jobs as the exiting private firms destroy.
+
+### 6.6 Role of Bank Dependence Parameters $\tilde{\varphi}$ and $\tilde{\varphi}_e$
+
+**Working capital dependence $\tilde{\varphi}$** amplifies the intensive margin:
+- $\frac{\partial^2 \tilde{n}^*}{\partial R_\ell \, \partial \tilde{\varphi}} < 0$: Higher $\tilde{\varphi}$ makes employment more sensitive to $R_\ell$.
+- At $\tilde{\varphi} = 0$, the lending rate has no effect on the labor demand curve.
+
+**Fixed cost dependence $\tilde{\varphi}_e$** amplifies the extensive margins (entry/exit):
+- $\frac{\partial^2 \tilde{f}^*}{\partial R_\ell \, \partial \tilde{\varphi}_e} < 0$: Higher $\tilde{\varphi}_e$ makes exit thresholds more sensitive.
+- $\frac{\partial^2 \tilde{f}_e^*}{\partial R_\ell \, \partial \tilde{\varphi}_e} < 0$: Entry is more suppressed when fixed-cost bank dependence is high.
+
+**Cross-sectional prediction:** Industries or economies with higher bank dependence (higher $\tilde{\varphi}$, $\tilde{\varphi}_e$) experience larger employment losses from a given increase in $R_\ell$.
+
+### Summary Table of Comparative Statics
+
+| Variable | $\frac{\partial}{\partial R_\ell}$ | Channel | Margin |
+|---|---|---|---|
+| $\tilde{n}^*(z)$ | $< 0$ | Working capital cost | Intensive |
+| $\pi(z)$ | $< 0$ | Envelope theorem | Intensive |
+| $\tilde{f}^*(z)$ | $< 0$ | Operating threshold tightens | Extensive (exit) |
+| $\tilde{f}_e^*(z)$ | $< 0$ | Entry threshold tightens | Extensive (entry) |
+| $\tilde{\mu}_e$ | $< 0$ | Fewer entrants | Extensive (entry) |
+| $\kappa^*(z)$ | $> 0$ | Escape bank dependence | Extensive (transition) |
+| $\tilde{p}(z)$ | $> 0$ | More transitions to public | Extensive (transition) |
+| $\tilde{W}(z)$ | $< 0$ | All downstream values fall | Total value |
+
+---
+
+## 7. Connection to the Household Problem via $R_\ell$
+
+The lending rate $R_\ell$ is the **critical equilibrium object** that connects the private firm block to the household side of the model. The transmission mechanism operates through the three-paper arc with Carroll (2000a, 2000b):
+
+### The Deposit-Lending Channel
+
+1. **Non-homothetic preferences** ($\eta > \sigma$): In the household block, preferences exhibit non-homotheticity with the elasticity of substitution between consumption and portfolio allocation varying with wealth. Specifically, $\eta > \sigma$ means that wealthier households have a **lower marginal propensity to save in bank deposits** relative to other assets (equity, direct lending, etc.).
+
+2. **Rising top incomes → deposit drainage**: As income concentration at the top increases, the aggregate savings composition shifts. Wealthy households allocate their marginal savings toward non-deposit assets (equities, bonds, direct investments). Even if aggregate savings rise, **bank deposits fall** as a share.
+
+3. **Bank balance sheet constraint**: Banks intermediate deposits into loans to private firms. With fewer deposits:
+
+$$
+\text{Deposits} \downarrow \implies \text{Loan supply} \downarrow \implies R_\ell \uparrow
+$$
+
+The bank's balance sheet requires deposits to fund loans. The deposit shortfall raises the marginal cost of lending.
+
+4. **Private firm response** (this block): As $R_\ell$ rises:
+   - **Intensive margin**: Each operating private firm hires fewer workers ($\tilde{n}^* \downarrow$).
+   - **Exit margin**: More firms exit ($\tilde{f}^* \downarrow$, exit rate rises).
+   - **Entry margin**: Fewer firms enter ($\tilde{f}_e^* \downarrow$, $\tilde{\mu}_e \downarrow$).
+   - **Transition margin**: More surviving firms transition to public status ($\kappa^* \uparrow$), partially offsetting the job loss but shifting employment toward large public firms.
+
+5. **Aggregate employment effect**: Total private-firm employment is:
+
+$$
+\tilde{N} = \int \tilde{n}^*(z) \cdot \frac{\tilde{f}^*(z)}{\tilde{f}_{\max}}\, d\mu(z) + \tilde{\mu}_e \cdot \mathbb{E}[\tilde{n}^*(z) \mid \text{entry}]
+$$
+
+where $\mu(z)$ is the endogenous distribution of incumbent private firms. All three components — employment per firm, survival probability, and entry mass — decline with $R_\ell$, creating an **unambiguously negative** effect on private-sector job creation.
+
+### The Carroll (2000a, 2000b) Connection
+
+The three-paper arc builds on Carroll's buffer-stock savings framework:
+
+- **Carroll (2000a)**: Establishes that the wealthy have lower MPCs and different portfolio compositions — the foundation for non-homothetic deposit demand.
+- **Carroll (2000b)**: Shows that wealth concentration affects aggregate savings rates and composition — the mechanism through which top-income growth shifts deposits.
+- **Doerr, Drechsel & Lee (2026)**: Embeds this household heterogeneity in a GE model where the portfolio composition channel (not just the level of savings) matters, because bank deposits specifically fund bank-dependent firms.
+
+The equilibrium is characterized by a **lending rate $R_\ell$** that clears the loan market:
+
+$$
+\text{Loan demand}(R_\ell) = \text{Deposit supply}(R_\ell; \text{income distribution})
+$$
+
+Rising inequality shifts the deposit supply curve **inward** (for any $R_\ell$, deposits are lower because a larger share of aggregate income accrues to households with low deposit shares), raising the equilibrium $R_\ell$ and transmitting inequality into reduced job creation at bank-dependent firms.
+
+This is the paper's central insight: **inequality reduces employment not through aggregate demand or human capital channels, but through the financial intermediation channel** — the composition of household portfolios determines the cost of credit for small, bank-dependent firms.

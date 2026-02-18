@@ -1,0 +1,231 @@
+# Public Firm Bellman Problem (Equations 15–18)
+
+## Doerr, Drechsel & Lee (2026) — Section 5 GE Model
+
+---
+
+## 1. State Space
+
+The public firm's problem is characterized by a single exogenous state:
+
+| State Variable | Description |
+|---|---|
+| $z$ | Idiosyncratic productivity, following a Markov process with autocorrelation $\rho_z$ and innovation std $\sigma_z$ |
+
+Notably, the public firm carries **no endogenous state** across periods. Because it faces frictionless capital markets (no borrowing constraints, no bank dependence), its factor demands $K$ and $N$ are chosen **statically** each period conditional on $z$ and prices $(R_k, w)$. The continuation value depends only on the exogenous productivity draw $z'$.
+
+---
+
+## 2. Controls
+
+| Control | Description |
+|---|---|
+| $K$ | Physical capital rented/purchased at market return $R_k$ |
+| $N$ | Labor hired at wage $w$ |
+
+Both are chosen each period to maximize current-period profits plus discounted continuation value.
+
+---
+
+## 3. Technology (Equation 15)
+
+$$
+Y = z \, K^{\theta} \, N^{\gamma - \theta}, \qquad 0 < \theta < 1, \quad \theta < \gamma \leq 1
+$$
+
+This is a **Cobb-Douglas** production function with:
+- Capital elasticity $\theta$
+- Labor elasticity $\gamma - \theta$
+- Returns to scale parameter $\gamma$ (if $\gamma < 1$, decreasing returns to scale; if $\gamma = 1$, constant returns)
+
+The parameterization with $\gamma$ governing the **sum** of factor elasticities is deliberate: it allows the model to nest both CRS ($\gamma = 1$) and DRS ($\gamma < 1$), where DRS is necessary for well-defined firm-level profits in equilibrium.
+
+---
+
+## 4. Full Bellman Equation (Equation 16)
+
+$$
+V(z) = \max_{K, N} \left\{ z \, K^{\theta} \, N^{\gamma - \theta} - (R_k + \delta - 1) K - w N \right\} + \beta_f (1 - \lambda) \, \mathbb{E}\left[ V(z') \,\big|\, z \right]
+$$
+
+**Term-by-term interpretation:**
+
+| Term | Meaning |
+|---|---|
+| $z K^{\theta} N^{\gamma-\theta}$ | Gross output (revenue) |
+| $(R_k + \delta - 1)K$ | User cost of capital: required return $R_k$ plus depreciation $\delta$ minus the undepreciated capital returned (i.e., the rental rate of capital is $R_k + \delta - 1$) |
+| $wN$ | Wage bill |
+| $\beta_f$ | Firm discount factor |
+| $(1 - \lambda)$ | Survival probability; with probability $\lambda$ the firm exits exogenously |
+| $\mathbb{E}[V(z') | z]$ | Expected continuation value under the Markov process for productivity |
+
+**Critical structural observation:** Because the maximization problem inside the braces is **purely static** — neither $K$ nor $N$ appears in the continuation value — the Bellman equation **separates** into:
+
+$$
+V(z) = \pi^*(z) + \beta_f (1 - \lambda) \, \mathbb{E}[V(z') | z]
+$$
+
+where $\pi^*(z) \equiv \max_{K,N} \left\{ z K^{\theta} N^{\gamma-\theta} - (R_k + \delta - 1)K - wN \right\}$ is the **static profit function**. This is a key simplification relative to the private firm problem.
+
+---
+
+## 5. First-Order Conditions with Derivations
+
+### FOC for Capital (Equation 17)
+
+Taking the derivative of the period profit with respect to $K$ and setting it to zero:
+
+$$
+\frac{\partial}{\partial K}\left[ z K^{\theta} N^{\gamma-\theta} - (R_k + \delta - 1)K - wN \right] = 0
+$$
+
+$$
+\theta \, z \, K^{\theta - 1} \, N^{\gamma - \theta} - (R_k + \delta - 1) = 0
+$$
+
+$$
+\boxed{R_k = \theta \, z \, K^{\theta-1} \, N^{\gamma-\theta} + 1 - \delta}
+$$
+
+**Interpretation:** The marginal product of capital $\theta z K^{\theta-1} N^{\gamma-\theta}$ equals the **net** user cost of capital $R_k - (1 - \delta)$. Equivalently, the gross return on capital $R_k$ equals the marginal product plus the undepreciated fraction. This is the standard neoclassical rental rate condition.
+
+### FOC for Labor (Equation 18)
+
+Taking the derivative with respect to $N$:
+
+$$
+\frac{\partial}{\partial N}\left[ z K^{\theta} N^{\gamma-\theta} - (R_k + \delta - 1)K - wN \right] = 0
+$$
+
+$$
+(\gamma - \theta) \, z \, K^{\theta} \, N^{\gamma - \theta - 1} - w = 0
+$$
+
+$$
+\boxed{w = (\gamma - \theta) \, z \, K^{\theta} \, N^{\gamma - \theta - 1}}
+$$
+
+**Interpretation:** The wage equals the marginal product of labor. Since public firms are competitive in the labor market, this pins down labor demand given $(z, K, w)$.
+
+### Deriving Optimal Factor Demands
+
+From equations (17) and (18), we can solve for the **optimal factor demands** as functions of prices and productivity. Dividing the FOC for capital by the FOC for labor:
+
+$$
+\frac{R_k + \delta - 1}{w} = \frac{\theta}{(\gamma - \theta)} \cdot \frac{N}{K}
+$$
+
+$$
+\frac{K}{N} = \frac{\theta}{(\gamma - \theta)} \cdot \frac{w}{R_k + \delta - 1}
+$$
+
+Substituting back into either FOC yields closed-form expressions for $K^*(z)$ and $N^*(z)$, and consequently the **profit function**:
+
+$$
+\pi^*(z) = \Phi \cdot z^{\frac{1}{1-\gamma}}
+$$
+
+where $\Phi$ is a constant depending on $(\theta, \gamma, R_k, \delta, w)$. When $\gamma < 1$ (DRS), this is well-defined and finite. When $\gamma = 1$ (CRS), profits are zero in equilibrium.
+
+---
+
+## 6. Comparison with the Private Firm Problem
+
+This comparison is the **heart of the model's mechanism**:
+
+| Dimension | Public Firm | Private Firm |
+|---|---|---|
+| **Capital access** | Frictionless capital markets; obtains $K$ at market rate $R_k$ | **Bank-dependent**; must borrow from banks at lending rate $R_\ell$ |
+| **Financing cost** | User cost is $R_k + \delta - 1$ | User cost is $R_\ell + \delta - 1$, where $R_\ell > R_k$ due to banking intermediation spread |
+| **Borrowing constraints** | None — can rent any $K$ at the market price | Potentially constrained by bank credit supply; collateral/leverage constraints may bind |
+| **State space** | Only exogenous $z$ (static factor choice) | Likely includes endogenous net worth/assets $a$ alongside $z$, because borrowing constraints create intertemporal linkages |
+| **Bellman separability** | Static profit + discounted continuation (fully separable) | Dynamic: current borrowing/saving decisions affect future collateral and hence future borrowing capacity |
+| **Exit** | Exogenous at rate $\lambda$ | Same exogenous exit at rate $\lambda$ (same Markov process $\rho_z, \sigma_z$) |
+| **Demand for bank loans** | **Zero** — no bank dependence | Positive — constitutes bank loan demand |
+| **Sensitivity to deposit supply** | **Indirect only** — through general equilibrium $w$ | **Direct** — when deposits fall, $R_\ell$ rises, crushing private firm investment |
+
+**What public firms have that private firms lack:**
+- Direct access to capital markets at the household-determined rate $R_k$
+- No balance sheet constraints; factor demands are purely static
+
+**What private firms have that public firms lack:**
+- Nothing advantageous — the asymmetry is one of **disadvantage**: private firms must use costly, constrained bank intermediation
+
+---
+
+## 7. Connection to the Household Problem via $R_k$
+
+The public firm's FOC for capital (equation 17) directly determines the **equilibrium return on capital** $R_k$, which is the return households earn on their **capital investment** $k$:
+
+$$
+R_k = \theta \, z \, K^{\theta-1} N^{\gamma - \theta} + 1 - \delta
+$$
+
+In the household's portfolio problem, households allocate wealth between:
+
+| Asset | Return | Intermediated by |
+|---|---|---|
+| **Deposits** $d$ | $R_d$ (deposit rate) | Banks → lent to private firms at $R_\ell > R_d$ |
+| **Capital investment** $k$ | $R_k$ (capital return) | Direct → funds public firm capital |
+
+The household's Euler equations for both assets must hold in equilibrium. The **non-homothetic preferences** (with $\eta > \sigma$) imply that as top incomes rise, wealthy households shift portfolios toward capital $k$ and away from deposits $d$ (because deposits are associated with safe/liquid motives that are less valued at higher wealth when $\eta > \sigma$).
+
+The general equilibrium link is:
+
+$$
+\text{Household capital supply} \xrightarrow{k} \text{Public firm capital demand} \xrightarrow{R_k} \text{Household Euler equation}
+$$
+
+Public firms are price-takers at $R_k$; the aggregate demand for capital from public firms, combined with household capital supply, clears the capital market.
+
+---
+
+## 8. Why the Financing Asymmetry Is Central to the Model
+
+The **entire transmission mechanism** of the paper flows through this asymmetry:
+
+### The Causal Chain
+
+```
+Rising top incomes
+        │
+        ▼
+Non-homothetic preferences (η > σ): wealthy households
+prefer capital investment k over bank deposits d
+        │
+        ▼
+Deposit supply to banks FALLS
+        │
+        ▼
+Banks face higher funding costs → lending rate R_ℓ RISES
+        │
+        ▼
+┌───────────────────────┬─────────────────────────────┐
+│   PRIVATE firms       │    PUBLIC firms              │
+│   (bank-dependent)    │    (capital-market funded)   │
+│                       │                              │
+│   Cost of capital ↑   │    Cost of capital: R_k      │
+│   Investment ↓        │    Unaffected by deposit     │
+│   Hiring ↓            │    drain (may even benefit   │
+│   Job creation ↓↓     │    from increased capital    │
+│                       │    supply from households)   │
+└───────────────────────┴─────────────────────────────┘
+        │
+        ▼
+Aggregate job creation falls because small/private
+firms are disproportionate job creators
+```
+
+### Why Both Firm Types Are Necessary
+
+1. **Without public firms**, there would be no outside option for household savings — deposits would be the only vehicle, and the portfolio reallocation channel would not exist.
+
+2. **Without private firms**, there would be no bank-dependent sector to suffer from deposit withdrawal, and rising inequality would have no effect on credit conditions.
+
+3. **The wedge $R_\ell - R_k$** is endogenous and **widens** as inequality rises: this is the banking spread that reflects the scarcity of deposits. Public firms' Bellman (equation 16) is benchmarked at $R_k$; private firms face $R_\ell > R_k$, and the gap grows precisely when top incomes drain the deposit base.
+
+4. **The public firm problem is deliberately simple** — its static separability and frictionless access mean it serves as the **benchmark** against which private firm distortions are measured. The public firm Bellman's simplicity is a modeling feature, not a bug: it isolates the **bank-dependence channel** as the sole source of real effects from inequality-driven portfolio shifts.
+
+### Connection to Carroll (2000a,b) Arc
+
+The three-paper arc with Carroll's work on buffer-stock saving and consumption connects through the **non-homothetic preference structure**: Carroll's models establish that consumption and saving behavior differs qualitatively across the wealth distribution. Doerr, Drechsel & Lee embed this insight in general equilibrium where the *composition* of saving (deposits vs. capital), not just its level, matters — and the public firm Bellman (with its direct capital market access at $R_k$) is the asset that absorbs the portfolio shift away from deposits.

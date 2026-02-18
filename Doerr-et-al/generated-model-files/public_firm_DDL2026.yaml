@@ -1,0 +1,165 @@
+# =============================================================================
+# Doerr, Drechsel, Lee (2026) - "Income Inequality and Job Creation"
+# Public Firm Bellman Problem (Section 5, Equations 15-18)
+#
+# The public firm chooses capital K and labor N each period to maximize
+# static profits plus discounted continuation value. Factor demands are
+# purely intratemporal, so the Bellman separates:
+#
+#   V(z) = pi_star(z) + beta_f*(1 - lambda)*E[V(z') | z]
+#
+# where pi_star(z) = max_{K,N} { z*K^theta*N^(gamma-theta)
+#                                 - (Rk + delta - 1)*K - w*N }
+#
+# Technology:  Y = z * K^theta * N^(gamma - theta)
+# FOC capital: Rk = theta * z * K^(theta-1) * N^(gamma-theta) + 1 - delta
+# FOC labor:   w  = (gamma - theta) * z * K^theta * N^(gamma-theta-1)
+#
+# Productivity follows AR(1) in logs:
+#   log(z') = rho_z * log(z) + eps,   eps ~ N(0, sigma_z^2)
+#
+# Public firms exit exogenously with probability lambda.
+# =============================================================================
+
+name: PublicFirm_DDL2026
+
+model_type: dtmscc
+
+symbols:
+
+    # Exogenous state: productivity (AR(1) in logs)
+    exogenous: [z]
+
+    # Static controls: capital and labor (intratemporal, no dynamic linkage)
+    controls: [K, N]
+
+    # Value function
+    values: [V]
+
+    # Aggregate prices and structural parameters treated as fixed parameters
+    parameters: [theta, gamma, beta_f, lambda_exit, Rk, w, delta, rho_z, sigma_z]
+
+definitions:
+    # Production function (eq 15)
+    Y: z * K^theta * N^(gamma - theta)
+
+    # User cost of capital
+    R_user: Rk + delta - 1
+
+    # Static profit flow
+    profit: Y - R_user * K - w * N
+
+    # Marginal product of capital (for FOC verification / eq 17)
+    mpk: theta * z * K^(theta - 1) * N^(gamma - theta)
+
+    # Marginal product of labor (for FOC verification / eq 18)
+    mpn: (gamma - theta) * z * K^theta * N^(gamma - theta - 1)
+
+equations:
+
+    # -----------------------------------------------------------------
+    # Transition for exogenous state: AR(1) in logs
+    # -----------------------------------------------------------------
+    exogenous:
+        # Discretized via Tauchen or Rouwenhorst; the continuous law is:
+        #   log(z') = rho_z * log(z) + eps,  eps ~ N(0, sigma_z^2)
+        z: !AR1
+            rho: rho_z
+            sigma: sigma_z
+
+    # -----------------------------------------------------------------
+    # Optimality conditions (intratemporal FOCs, eqs 17-18)
+    #
+    # These pin down K and N as functions of z and prices each period.
+    # Written as residual equations = 0:
+    #   FOC_K: mpk + 1 - delta - Rk = 0
+    #   FOC_N: mpn - w = 0
+    # -----------------------------------------------------------------
+    arbitrage:
+        - theta * z * K^(theta - 1) * N^(gamma - theta) + 1 - delta - Rk
+        - (gamma - theta) * z * K^theta * N^(gamma - theta - 1) - w
+
+    # -----------------------------------------------------------------
+    # Value function equation (eq 16)
+    #
+    # V(z) = profit(z, K*(z), N*(z)) + beta_f*(1 - lambda)*E[V(z')|z]
+    #
+    # The expectation E[V(z')|z] is computed by the solver over the
+    # discretized Markov chain for z.
+    # -----------------------------------------------------------------
+    value:
+        - V = z * K^theta * N^(gamma - theta) - (Rk + delta - 1) * K - w * N + beta_f * (1 - lambda_exit) * E[V(z(1))]
+
+    # -----------------------------------------------------------------
+    # Controls bounds (K > 0, N > 0)
+    # -----------------------------------------------------------------
+    controls_lb: [1e-10, 1e-10]
+    controls_ub: [inf, inf]
+
+calibration:
+
+    # Technology parameters from Table 3, Panel (b)
+    theta:        0.2193      # capital share (calibrated to match depreciation rate)
+    gamma:        0.9883      # returns to scale (calibrated so public firms demand 46.9% of labor)
+
+    # Discount and exit from Table 3
+    beta_f:       0.9182      # firm discount factor (= household beta, calibrated to 8% stock return)
+    lambda_exit:  0.10        # exogenous exit probability (Table 3, Panel (a))
+
+    # Prices (GE equilibrium values targeted in calibration)
+    Rk:           1.08        # gross return on capital (mean US stock return target)
+    w:            1.00        # wage rate (normalized to 1)
+    delta:        0.06        # depreciation rate (NIPA target, Table 3 Panel (b))
+
+    # Productivity process parameters from Table 3, Panel (a)
+    rho_z:        0.90        # firm productivity autocorrelation
+    sigma_z:      0.0297      # firm productivity std dev (Table 3, Panel (b))
+
+    # -----------------------------------------------------------------
+    # Steady-state values (solve FOCs at z = 1 for initial guess)
+    #
+    # From FOC_K: theta * K^(theta-1) * N^(gamma-theta) = Rk + delta - 1
+    # From FOC_N: (gamma-theta) * K^theta * N^(gamma-theta-1) = w
+    #
+    # Dividing FOC_K / FOC_N:
+    #   (theta / (gamma - theta)) * (N / K) = (Rk + delta - 1) / w
+    #   => N/K = ((gamma-theta)/theta) * ((Rk + delta - 1) / w)
+    #
+    # Then substitute back to get levels.
+    # -----------------------------------------------------------------
+    z:            1.0
+
+    # Analytical steady-state at z=1 with Table 3 parameters:
+    #   r_net = Rk + delta - 1 = 1.08 + 0.06 - 1 = 0.14
+    #   alpha = theta = 0.2193, nu = gamma - theta = 0.7690
+    #   N/K = (nu * r_net) / (alpha * w) = (0.7690 * 0.14) / (0.2193 * 1.0) = 0.4907
+    #   K^(gamma-1) = (r_net/alpha) * (alpha*w/(nu*r_net))^nu
+    #   gamma - 1 = -0.0117 (very close to CRS)
+    #   => K and N are very large (near-CRS amplification)
+    K:            50.0
+    N:            24.5
+
+    # Value function initial guess
+    V:            10.0
+
+# -----------------------------------------------------------------
+# Domain for the exogenous state (grid specification)
+# -----------------------------------------------------------------
+domain:
+    z: [0.5, 2.0]      # range for productivity (in levels)
+
+exogenous:
+    z:
+        type: AR1
+        rho: rho_z
+        sigma: sigma_z
+        N: 7               # number of grid points for Tauchen discretization
+        method: tauchen     # discretization method
+
+options:
+    grid:
+        type: Cartesian
+        orders: [20]        # grid density for z (if interpolation is used)
+    discretization:
+        method: tauchen
+        N: 7                # number of Markov states for z
